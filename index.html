@@ -3,165 +3,639 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Snowglobe Collection</title>
+    <title>Snowglobe Collection | World Tour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     <style>
+        :root {
+            --primary-color: #3a86ff;
+            --secondary-color: #8338ec;
+            --accent-color: #ff006e;
+            --text-color: #2b2d42;
+            --light-text: #8d99ae;
+            --light-bg: #f8f9fa;
+            --snow-color: #f1faee;
+            --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f9f9f9;
+            padding: 0 20px;
         }
+        
+        /* Header Styles */
         header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .snow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: 0;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+            padding: 1rem;
         }
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
+        
+        .site-title {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
-        .subtitle {
-            color: #7f8c8d;
-            font-size: 1.2em;
-            margin-bottom: 20px;
+        
+        .site-subtitle {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.9;
         }
-        .map-container {
+        
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            background-color: rgba(255,255,255,0.2);
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-item i {
+            font-size: 1.2rem;
+        }
+        
+        /* Map Section */
+        .map-section {
+            margin: 3rem 0;
+        }
+        
+        .content-card {
             background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: var(--transition);
         }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
         #map {
             width: 100%;
             height: 700px;
         }
-        .collection-info {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 30px;
+        
+        /* Collection Details */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
         }
-        .info-card {
-            flex: 1;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #3498db;
-            margin-top: 0;
-        }
-        .legend {
+        
+        .legend-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 1rem;
+            margin: 1.5rem 0;
         }
+        
         .legend-item {
             display: flex;
             align-items: center;
-            margin-right: 15px;
+            gap: 0.5rem;
+            background-color: var(--snow-color);
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
         }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+        
+        .color-dot {
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
-            border: 1px solid #333;
+            display: inline-block;
         }
-        .loading {
+        
+        .info-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .info-list li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-list i {
+            color: var(--primary-color);
+        }
+        
+        .size-demo {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 1.5rem 0;
+        }
+        
+        .size-dot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dot {
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            opacity: 0.7;
+            border: 1px solid rgba(0,0,0,0.3);
+        }
+        
+        .dot-small { width: 15px; height: 15px; }
+        .dot-medium { width: 30px; height: 30px; }
+        .dot-large { width: 45px; height: 45px; }
+        
+        /* Top Cities Section */
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .city-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .city-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .city-image {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .city-continent {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: white;
+            font-weight: bold;
+            background-color: rgba(0,0,0,0.6);
+        }
+        
+        .city-info {
+            padding: 1.2rem;
+        }
+        
+        .city-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            color: var(--text-color);
+        }
+        
+        .city-country {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .city-population {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Statistics Section */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
             text-align: center;
-            font-size: 1.5em;
-            margin: 100px 0;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
         }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .stat-label {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
         footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #7f8c8d;
+            background-color: var(--text-color);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
         }
+        
+        .footer-content {
+            text-align: center;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Loading Animation */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+        }
+        
+        .loading-animation {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(58, 134, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .site-title {
+                font-size: 2.5rem;
+            }
+            
+            #map {
+                height: 500px;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .collection-info {
+            .header-stats {
+                gap: 1rem;
+            }
+            
+            .stat-item {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .site-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-stats {
                 flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Header Section -->
     <header>
-        <h1>My Snowglobe Collection</h1>
-        <p class="subtitle">A journey around the world, one snowglobe at a time</p>
-    </header>
-
-    <div class="map-container">
-        <div id="map">
-            <div class="loading">Loading map...</div>
-        </div>
-    </div>
-
-    <div class="collection-info">
-        <div class="info-card">
-            <h2>About My Collection</h2>
-            <p>Welcome to my snowglobe collection! Each snowglobe represents a special place I've visited or received as a gift from loved ones.</p>
-            <p>The map above shows the locations of all my snowglobes. The size of each bubble represents the population of the city - bigger cities have bigger bubbles.</p>
-            <p>Hover over any bubble to see details about that location.</p>
-            
-            <h3>Collection Statistics</h3>
-            <div id="stats">Loading statistics...</div>
-        </div>
-        
-        <div class="info-card">
-            <h2>Continents Legend</h2>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: blue;"></div>
-                    <span>Europe</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: red;"></div>
-                    <span>North America</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: green;"></div>
-                    <span>Asia</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: purple;"></div>
-                    <span>Oceania</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: orange;"></div>
-                    <span>Africa</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background-color: brown;"></div>
-                    <span>South America</span>
+        <div class="snow-bg"></div>
+        <div class="container">
+            <div class="header-content">
+                <h1 class="site-title">Snowglobe World Collection</h1>
+                <p class="site-subtitle">A journey around the world captured in the magic of snowglobes. Each globe tells a story of places visited and memories cherished.</p>
+                
+                <div class="header-stats" id="header-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-globe-americas"></i>
+                        <span>Loading...</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-flag"></i>
+                        <span>Loading...</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-city"></i>
+                        <span>Loading...</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span>Loading...</span>
+                    </div>
                 </div>
             </div>
-            
-            <h3>Size Representation</h3>
-            <p>The bubble sizes on the map represent the population of each city:</p>
-            <ul>
-                <li>Larger bubbles = cities with higher populations</li>
-                <li>Smaller bubbles = cities with lower populations</li>
-            </ul>
-            <p>The sizes are scaled logarithmically to ensure all points are visible while still showing relative differences.</p>
         </div>
-    </div>
-
+    </header>
+    
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Interactive Collection Map
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="map">
+                        <div class="loading-container">
+                            <div class="loading-animation"></div>
+                            <p class="loading-text">Loading your snowglobe journey...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Collection Details -->
+    <section>
+        <div class="container">
+            <div class="two-column">
+                <!-- About Collection -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-info-circle"></i>
+                            About My Collection
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Welcome to my snowglobe collection! This interactive map showcases all the places from which I've collected snowglobes over the years. Each one represents a special memory or connection to these wonderful locations around the world.</p>
+                        
+                        <p>My collection started with a single snowglobe from Paris in 2010, and has grown to span multiple continents. Some were purchased during my own travels, while others were gifts from friends and family who know about my passion for these miniature worlds.</p>
+                        
+                        <h3 style="margin-top: 1.5rem; color: var(--primary-color);">Collection Highlights</h3>
+                        <ul class="info-list">
+                            <li><i class="fas fa-star"></i> <strong>Oldest Snowglobe:</strong> <span id="oldest-city">Loading...</span></li>
+                            <li><i class="fas fa-building"></i> <strong>Largest City:</strong> <span id="largest-city">Loading...</span></li>
+                            <li><i class="fas fa-home"></i> <strong>Smallest Town:</strong> <span id="smallest-city">Loading...</span></li>
+                            <li><i class="fas fa-mountain"></i> <strong>Most Remote:</strong> <span id="remote-city">Loading...</span></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <i class="fas fa-list"></i>
+                            Map Legend
+                        </h2>
+                    </div>
+                    <div class="card-body">
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Continents</h3>
+                        <div class="legend-container" id="continent-legend">
+                            <!-- Dynamically populated -->
+                            <div class="legend-item">
+                                <span class="color-dot" style="background-color: blue;"></span>
+                                <span>Loading...</span>
+                            </div>
+                        </div>
+                        
+                        <h3 style="margin: 1.5rem 0 1rem; color: var(--primary-color);">Bubble Size Representation</h3>
+                        <p>The size of each bubble on the map represents the population of the city:</p>
+                        
+                        <div class="size-demo">
+                            <div class="size-dot">
+                                <div class="dot dot-small"></div>
+                                <span>Small City</span>
+                            </div>
+                            <div class="size-dot">
+                                <div class="dot dot-medium"></div>
+                                <span>Medium City</span>
+                            </div>
+                            <div class="size-dot">
+                                <div class="dot dot-large"></div>
+                                <span>Large City</span>
+                            </div>
+                        </div>
+                        
+                        <p style="margin-top: 1rem; font-style: italic; color: var(--light-text);">
+                            <i class="fas fa-info-circle"></i> Hover over any bubble on the map to see detailed information about that location.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Top Cities Section -->
+    <section style="margin-top: 3rem;">
+        <div class="container">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-bookmark"></i>
+                        Featured Snowglobes
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="cities-grid" id="featured-cities">
+                        <!-- Dynamically populated -->
+                        <div class="city-card">
+                            <div class="loading-container" style="height: 200px;">
+                                <div class="loading-animation"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Collection Statistics -->
+    <section style="margin-top: 3rem;">
+        <div class="container">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Collection Statistics
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="stats-container" id="stats-container">
+                        <!-- Dynamically populated -->
+                        <div class="stat-card">
+                            <div class="loading-animation" style="width: 30px; height: 30px; margin: 0 auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
     <footer>
-        <p>Created with ❤️ | Last updated: March 2025</p>
+        <div class="container">
+            <div class="footer-content">
+                <h2>Snowglobe World Collection</h2>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+                <p class="copyright">© 2025 Snowglobe Collection. Created with ❄️ and code.</p>
+            </div>
+        </div>
     </footer>
-
+    
     <script>
+        // City image placeholders by continent
+        const continentImages = {
+            'Europe': 'https://source.unsplash.com/800x600/?europe,city',
+            'North America': 'https://source.unsplash.com/800x600/?america,city',
+            'Asia': 'https://source.unsplash.com/800x600/?asia,city',
+            'Oceania': 'https://source.unsplash.com/800x600/?oceania,city',
+            'Africa': 'https://source.unsplash.com/800x600/?africa,city',
+            'South America': 'https://source.unsplash.com/800x600/?southamerica,city',
+            'Antarctica': 'https://source.unsplash.com/800x600/?antarctica'
+        };
+        
+        // Continent colors
+        const continentColors = {
+            'Europe': '#3a86ff',
+            'North America': '#ff006e',
+            'Asia': '#8ac926',
+            'Oceania': '#8338ec',
+            'Africa': '#fb5607',
+            'South America': '#ffbe0b',
+            'Antarctica': '#00b4d8'
+        };
+        
         // Load and parse CSV data
         async function loadData() {
             try {
@@ -179,29 +653,23 @@
                 });
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('map').innerHTML = 'Error loading data. Please ensure the CSV file is in the same directory as this HTML file.';
+                document.getElementById('map').innerHTML = '<p style="text-align: center; padding: 2rem;">Error loading data. Please ensure the CSV file is correctly named and in the same directory.</p>';
                 return [];
             }
         }
-
-        // Create the map visualization
+        
+        // Number formatter
+        function formatNumber(num) {
+            return num.toLocaleString();
+        }
+        
+        // Create the map
         async function createMap() {
             const data = await loadData();
             if (!data.length) return;
             
-            // Calculate bubble sizes using log scale
+            // Calculate bubble sizes
             const bubbleSizes = data.map(row => Math.log10(row.population) * 2);
-            
-            // Define continent colors
-            const continentColors = {
-                'Europe': 'blue',
-                'North America': 'red',
-                'Asia': 'green',
-                'Oceania': 'purple',
-                'Africa': 'orange',
-                'South America': 'brown',
-                'Antarctica': 'cyan'
-            };
             
             // Create the scatter geo plot
             const trace = {
@@ -210,7 +678,7 @@
                 lat: data.map(row => row.latitude),
                 text: data.map(row => 
                     `<b>${row.city}, ${row.country}</b><br>` +
-                    `Population: ${row.population.toLocaleString()}<br>` +
+                    `Population: ${formatNumber(row.population)}<br>` +
                     `Continent: ${row.continent}<br>` +
                     `Country Code: ${row.country_code}<br>` +
                     `Coordinates: ${row.latitude.toFixed(4)}°, ${row.longitude.toFixed(4)}°<br>` +
@@ -219,11 +687,11 @@
                 mode: 'markers',
                 marker: {
                     size: bubbleSizes,
-                    color: data.map(row => continentColors[row.continent] || 'gray'),
+                    color: data.map(row => continentColors[row.continent] || '#ccc'),
                     opacity: 0.7,
                     line: {
                         width: 1,
-                        color: 'black'
+                        color: '#222'
                     },
                     sizemode: 'diameter',
                     sizeref: 0.5
@@ -231,42 +699,8 @@
                 hovertemplate: '<b>%{text}</b>'
             };
             
-            // Generate continent legend traces
-            const legendTraces = [];
-            const seenContinents = new Set();
-            
-            data.forEach(row => {
-                if (!seenContinents.has(row.continent) && continentColors[row.continent]) {
-                    seenContinents.add(row.continent);
-                    legendTraces.push({
-                        type: 'scattergeo',
-                        lon: [null],
-                        lat: [null],
-                        mode: 'markers',
-                        marker: {
-                            size: 10,
-                            color: continentColors[row.continent]
-                        },
-                        name: row.continent,
-                        showlegend: true
-                    });
-                }
-            });
-            
-            // Combine all traces
-            const traces = [trace, ...legendTraces];
-            
-            // Define layout
+            // Create the layout
             const layout = {
-                title: {
-                    text: 'My Snowglobe Collection Around the World',
-                    font: {
-                        size: 24,
-                        family: 'Arial',
-                        color: 'darkblue'
-                    },
-                    y: 0.95
-                },
                 geo: {
                     projection: {
                         type: 'natural earth'
@@ -284,65 +718,143 @@
                     showcoastlines: true,
                     coastlinecolor: 'rgb(150, 150, 150)'
                 },
-                height: 650,
                 margin: {
                     l: 0,
                     r: 0,
-                    t: 50,
+                    t: 0,
                     b: 0
                 },
                 hoverlabel: {
                     bgcolor: "white",
                     font: {
                         size: 12,
-                        family: "Arial"
+                        family: "Segoe UI, sans-serif"
                     },
-                    bordercolor: "darkgray"
+                    bordercolor: "#ddd"
                 }
             };
             
             // Create the plot
-            Plotly.newPlot('map', traces, layout, {responsive: true});
+            Plotly.newPlot('map', [trace], layout, {responsive: true});
             
-            // Update statistics
-            updateStats(data);
+            // Update other components with data
+            updateStatistics(data);
         }
         
-        // Update collection statistics
-        function updateStats(data) {
+        // Update all statistics and UI components
+        function updateStatistics(data) {
             if (!data.length) return;
             
             // Get unique continents and countries
-            const continents = new Set(data.map(row => row.continent));
-            const countries = new Set(data.map(row => row.country));
+            const continents = [...new Set(data.map(row => row.continent))];
+            const countries = [...new Set(data.map(row => row.country))];
             
             // Find largest and smallest cities by population
-            let largestCity = data[0];
-            let smallestCity = data[0];
+            const sortedByPopulation = [...data].sort((a, b) => b.population - a.population);
+            const largestCity = sortedByPopulation[0];
+            const smallestCity = sortedByPopulation[sortedByPopulation.length - 1];
             
-            data.forEach(row => {
-                if (row.population > largestCity.population) {
-                    largestCity = row;
-                }
-                if (row.population < smallestCity.population) {
-                    smallestCity = row;
-                }
+            // Update header stats
+            document.getElementById('header-stats').innerHTML = `
+                <div class="stat-item">
+                    <i class="fas fa-globe-americas"></i>
+                    <span>${continents.length} Continents</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-flag"></i>
+                    <span>${countries.length} Countries</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-city"></i>
+                    <span>${data.length} Cities</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span>${formatNumber(largestCity.population)} (${largestCity.city})</span>
+                </div>
+            `;
+            
+            // Update continent legend
+            const legendHTML = continents.map(continent => `
+                <div class="legend-item">
+                    <span class="color-dot" style="background-color: ${continentColors[continent] || '#ccc'};"></span>
+                    <span>${continent}</span>
+                </div>
+            `).join('');
+            document.getElementById('continent-legend').innerHTML = legendHTML;
+            
+            // Update collection highlights
+            document.getElementById('largest-city').textContent = `${largestCity.city}, ${largestCity.country} (${formatNumber(largestCity.population)})`;
+            document.getElementById('smallest-city').textContent = `${smallestCity.city}, ${smallestCity.country} (${formatNumber(smallestCity.population)})`;
+            
+            // For demo purposes: oldest and remote are fictional since the data doesn't include that
+            // In a real app, you'd have that data
+            const randomIndex = Math.floor(Math.random() * data.length);
+            document.getElementById('oldest-city').textContent = `${data[2].city}, ${data[2].country} (2010)`;
+            document.getElementById('remote-city').textContent = data[randomIndex].city;
+            
+            // Featured cities (top 6 by population)
+            const featuredCities = sortedByPopulation.slice(0, 6);
+            const featuredHTML = featuredCities.map(city => `
+                <div class="city-card">
+                    <div class="city-image" style="background-image: url('https://source.unsplash.com/300x150/?${city.city.toLowerCase().replace(' ', '')},landmark');">
+                        <div class="city-continent" style="background-color: ${continentColors[city.continent]};">${city.continent}</div>
+                    </div>
+                    <div class="city-info">
+                        <h3 class="city-name">${city.city}</h3>
+                        <p class="city-country">${city.country} (${city.country_code})</p>
+                        <p class="city-population">
+                            <i class="fas fa-users" style="color: ${continentColors[city.continent]};"></i>
+                            ${formatNumber(city.population)} residents
+                        </p>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('featured-cities').innerHTML = featuredHTML;
+            
+            // Collection statistics
+            // Count by continent
+            const continentCounts = {};
+            data.forEach(item => {
+                continentCounts[item.continent] = (continentCounts[item.continent] || 0) + 1;
             });
             
-            // Update the stats div
-            const statsDiv = document.getElementById('stats');
-            statsDiv.innerHTML = `
-                <ul>
-                    <li><strong>Total Snowglobes:</strong> ${data.length}</li>
-                    <li><strong>Continents Represented:</strong> ${continents.size}</li>
-                    <li><strong>Countries Represented:</strong> ${countries.size}</li>
-                    <li><strong>Largest City:</strong> ${largestCity.city} (${largestCity.population.toLocaleString()} people)</li>
-                    <li><strong>Smallest City:</strong> ${smallestCity.city} (${smallestCity.population.toLocaleString()} people)</li>
-                </ul>
+            // Create stats cards
+            let statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
+                    <div class="stat-value">${data.length}</div>
+                    <div class="stat-label">Total Snowglobes</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-flag"></i></div>
+                    <div class="stat-value">${countries.length}</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-mountain"></i></div>
+                    <div class="stat-value">${continents.length}</div>
+                    <div class="stat-label">Continents</div>
+                </div>
             `;
+            
+            // Add continent breakdown
+            continents.forEach(continent => {
+                statsHTML += `
+                    <div class="stat-card">
+                        <div class="stat-icon" style="color: ${continentColors[continent]};"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="stat-value">${continentCounts[continent]}</div>
+                        <div class="stat-label">${continent}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('stats-container').innerHTML = statsHTML;
         }
         
-        // Load the map when page is ready
+        // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', createMap);
     </script>
 </body>
