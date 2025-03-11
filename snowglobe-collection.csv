@@ -1,0 +1,38 @@
+index,city,country,country_code,continent,latitude,longitude,population
+1,Moscow,Russia,RU,Europe,55.7558,37.6173,12537954
+2,Rome,Italy,IT,Europe,41.9028,12.4964,2873000
+3,Paris,France,FR,Europe,48.8566,2.3522,2161000
+4,Vienna,Austria,AT,Europe,48.2082,16.3738,1897491
+5,Budapest,Hungary,HU,Europe,47.4979,19.0402,1752286
+6,Barcelona,Spain,ES,Europe,41.3851,2.1734,1620343
+7,Munich,Germany,DE,Europe,48.1351,11.5820,1471508
+8,Abu Dhabi,United Arab Emirates,AE,Europe,24.4539,54.3773,1450000
+9,Belgrade,Serbia,RS,Europe,44.7866,20.4489,1397939
+10,Milan,Italy,IT,Europe,45.4642,9.1900,1395274
+11,Prague,Czech Republic,CZ,Europe,50.0755,14.4378,1309000
+12,Brussels,Belgium,BE,Europe,50.8503,4.3517,1208542
+13,Frankfurt,Germany,DE,Europe,50.1109,8.6821,753056
+14,Amsterdam,Netherlands,NL,Europe,52.3676,4.9041,821752
+15,Malaga,Spain,ES,Europe,36.7213,-4.4213,578460
+16,Skopje,North Macedonia,MK,Europe,41.9981,21.4254,546824
+17,Bratislava,Slovakia,SK,Europe,48.1486,17.1077,424428
+18,Zurich,Switzerland,CH,Europe,47.3769,8.5417,402762
+19,Nice,France,FR,Europe,43.7102,7.2620,342669
+20,Ljubljana,Slovenia,SI,Europe,46.0569,14.5058,289832
+21,Bordeaux,France,FR,Europe,44.8378,-0.5792,257068
+22,Venice,Italy,IT,Europe,45.4408,12.3155,261905
+23,Freiburg,Germany,DE,Europe,47.9990,7.8421,230241
+24,Geneva,Switzerland,CH,Europe,46.2044,6.1432,201818
+25,Podgorica,Montenegro,ME,Europe,42.4304,19.2594,185937
+26,Nimes,France,FR,Europe,43.8367,4.3601,151001
+27,Lausanne,Switzerland,CH,Europe,46.5197,6.6323,139111
+28,Sète,France,FR,Europe,43.4012,3.6880,43813
+29,Santo Domingo,Dominican Republic,DO,North America,18.4861,-69.9312,2908607
+30,Dallas,United States,US,North America,32.7767,-96.7970,1345047
+31,Tucson,United States,US,North America,32.2226,-110.9747,545975
+32,Miami,United States,US,North America,25.7617,-80.1918,442241
+33,Dubai,United Arab Emirates,AE,Asia,25.2048,55.2708,3331420
+34,Colombo,Sri Lanka,LK,Asia,6.9271,79.8612,752993
+35,Sydney,Australia,AU,Oceania,-33.8688,151.2093,5312163
+36,Brisbane,Australia,AU,Oceania,-27.4698,153.0251,2560720
+37,Praia,Cape Verde,CV,Africa,14.9177,-23.5092,159050
