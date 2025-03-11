@@ -636,226 +636,59 @@
             'Antarctica': '#00b4d8'
         };
         
-        // Load and parse CSV data
-        async function loadData() {
-            try {
-                const response = await fetch('snowglobe-collection.csv');
-                const csvData = await response.text();
-                
-                return new Promise((resolve) => {
-                    Papa.parse(csvData, {
-                        header: true,
-                        dynamicTyping: true,
-                        complete: (results) => {
-                            resolve(results.data);
-                        }
-                    });
-                });
-            } catch (error) {
-                console.error('Error loading data:', error);
-                document.getElementById('map').innerHTML = '<p style="text-align: center; padding: 2rem;">Error loading data. Please ensure the CSV file is correctly named and in the same directory.</p>';
-                return [];
-            }
-        }
-        
-        // Number formatter
-        function formatNumber(num) {
-            return num.toLocaleString();
-        }
-        
-        // Create the map
-        async function createMap() {
-            const data = await loadData();
-            if (!data.length) return;
-            
-            // Calculate bubble sizes
-            const bubbleSizes = data.map(row => Math.log10(row.population) * 2);
-            
-            // Create the scatter geo plot
-            const trace = {
-                type: 'scattergeo',
-                lon: data.map(row => row.longitude),
-                lat: data.map(row => row.latitude),
-                text: data.map(row => 
-                    `<b>${row.city}, ${row.country}</b><br>` +
-                    `Population: ${formatNumber(row.population)}<br>` +
-                    `Continent: ${row.continent}<br>` +
-                    `Country Code: ${row.country_code}<br>` +
-                    `Coordinates: ${row.latitude.toFixed(4)}°, ${row.longitude.toFixed(4)}°<br>` +
-                    `Collection #: ${row.index}`
-                ),
-                mode: 'markers',
-                marker: {
-                    size: bubbleSizes,
-                    color: data.map(row => continentColors[row.continent] || '#ccc'),
-                    opacity: 0.7,
-                    line: {
-                        width: 1,
-                        color: '#222'
-                    },
-                    sizemode: 'diameter',
-                    sizeref: 0.5
-                },
-                hovertemplate: '<b>%{text}</b>'
-            };
-            
-            // Create the layout
-            const layout = {
-                geo: {
-                    projection: {
-                        type: 'natural earth'
-                    },
-                    showland: true,
-                    landcolor: 'rgb(243, 243, 243)',
-                    countrycolor: 'rgb(204, 204, 204)',
-                    showocean: true,
-                    oceancolor: 'rgb(220, 240, 255)',
-                    showlakes: true,
-                    lakecolor: 'rgb(220, 240, 255)',
-                    showrivers: true,
-                    rivercolor: 'rgb(220, 240, 255)',
-                    showcountries: true,
-                    showcoastlines: true,
-                    coastlinecolor: 'rgb(150, 150, 150)'
-                },
-                margin: {
-                    l: 0,
-                    r: 0,
-                    t: 0,
-                    b: 0
-                },
-                hoverlabel: {
-                    bgcolor: "white",
-                    font: {
-                        size: 12,
-                        family: "Segoe UI, sans-serif"
-                    },
-                    bordercolor: "#ddd"
-                }
-            };
-            
-            // Create the plot
-            Plotly.newPlot('map', [trace], layout, {responsive: true});
-            
-            // Update other components with data
-            updateStatistics(data);
-        }
-        
-        // Update all statistics and UI components
-        function updateStatistics(data) {
-            if (!data.length) return;
-            
-            // Get unique continents and countries
-            const continents = [...new Set(data.map(row => row.continent))];
-            const countries = [...new Set(data.map(row => row.country))];
-            
-            // Find largest and smallest cities by population
-            const sortedByPopulation = [...data].sort((a, b) => b.population - a.population);
-            const largestCity = sortedByPopulation[0];
-            const smallestCity = sortedByPopulation[sortedByPopulation.length - 1];
-            
-            // Update header stats
-            document.getElementById('header-stats').innerHTML = `
-                <div class="stat-item">
-                    <i class="fas fa-globe-americas"></i>
-                    <span>${continents.length} Continents</span>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-flag"></i>
-                    <span>${countries.length} Countries</span>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-city"></i>
-                    <span>${data.length} Cities</span>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <span>${formatNumber(largestCity.population)} (${largestCity.city})</span>
-                </div>
-            `;
-            
-            // Update continent legend
-            const legendHTML = continents.map(continent => `
-                <div class="legend-item">
-                    <span class="color-dot" style="background-color: ${continentColors[continent] || '#ccc'};"></span>
-                    <span>${continent}</span>
-                </div>
-            `).join('');
-            document.getElementById('continent-legend').innerHTML = legendHTML;
-            
-            // Update collection highlights
-            document.getElementById('largest-city').textContent = `${largestCity.city}, ${largestCity.country} (${formatNumber(largestCity.population)})`;
-            document.getElementById('smallest-city').textContent = `${smallestCity.city}, ${smallestCity.country} (${formatNumber(smallestCity.population)})`;
-            
-            // For demo purposes: oldest and remote are fictional since the data doesn't include that
-            // In a real app, you'd have that data
-            const randomIndex = Math.floor(Math.random() * data.length);
-            document.getElementById('oldest-city').textContent = `${data[2].city}, ${data[2].country} (2010)`;
-            document.getElementById('remote-city').textContent = data[randomIndex].city;
-            
-            // Featured cities (top 6 by population)
-            const featuredCities = sortedByPopulation.slice(0, 6);
-            const featuredHTML = featuredCities.map(city => `
-                <div class="city-card">
-                    <div class="city-image" style="background-image: url('https://source.unsplash.com/300x150/?${city.city.toLowerCase().replace(' ', '')},landmark');">
-                        <div class="city-continent" style="background-color: ${continentColors[city.continent]};">${city.continent}</div>
-                    </div>
-                    <div class="city-info">
-                        <h3 class="city-name">${city.city}</h3>
-                        <p class="city-country">${city.country} (${city.country_code})</p>
-                        <p class="city-population">
-                            <i class="fas fa-users" style="color: ${continentColors[city.continent]};"></i>
-                            ${formatNumber(city.population)} residents
-                        </p>
-                    </div>
-                </div>
-            `).join('');
-            document.getElementById('featured-cities').innerHTML = featuredHTML;
-            
-            // Collection statistics
-            // Count by continent
-            const continentCounts = {};
-            data.forEach(item => {
-                continentCounts[item.continent] = (continentCounts[item.continent] || 0) + 1;
-            });
-            
-            // Create stats cards
-            let statsHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
-                    <div class="stat-value">${data.length}</div>
-                    <div class="stat-label">Total Snowglobes</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-flag"></i></div>
-                    <div class="stat-value">${countries.length}</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-mountain"></i></div>
-                    <div class="stat-value">${continents.length}</div>
-                    <div class="stat-label">Continents</div>
-                </div>
-            `;
-            
-            // Add continent breakdown
-            continents.forEach(continent => {
-                statsHTML += `
-                    <div class="stat-card">
-                        <div class="stat-icon" style="color: ${continentColors[continent]};"><i class="fas fa-map-marker-alt"></i></div>
-                        <div class="stat-value">${continentCounts[continent]}</div>
-                        <div class="stat-label">${continent}</div>
-                    </div>
-                `;
-            });
-            
-            document.getElementById('stats-container').innerHTML = statsHTML;
-        }
-        
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', createMap);
-    </script>
-</body>
-</html>
+        // Embed the snowglobe collection data directly
+        const snowglobeData = [
+            {index:1,city:"Moscow",country:"Russia",country_code:"RU",continent:"Europe",latitude:55.7558,longitude:37.6173,population:12537954},
+            {index:2,city:"Rome",country:"Italy",country_code:"IT",continent:"Europe",latitude:41.9028,longitude:12.4964,population:2873000},
+            {index:3,city:"Paris",country:"France",country_code:"FR",continent:"Europe",latitude:48.8566,longitude:2.3522,population:2161000},
+            {index:4,city:"Vienna",country:"Austria",country_code:"AT",continent:"Europe",latitude:48.2082,longitude:16.3738,population:1897491},
+            {index:5,city:"Budapest",country:"Hungary",country_code:"HU",continent:"Europe",latitude:47.4979,longitude:19.0402,population:1752286},
+            {index:6,city:"Barcelona",country:"Spain",country_code:"ES",continent:"Europe",latitude:41.3851,longitude:2.1734,population:1620343},
+            {index:7,city:"Munich",country:"Germany",country_code:"DE",continent:"Europe",latitude:48.1351,longitude:11.582,population:1471508},
+            {index:8,city:"Abu Dhabi",country:"United Arab Emirates",country_code:"AE",continent:"Europe",latitude:24.4539,longitude:54.3773,population:1450000},
+            {index:9,city:"Belgrade",country:"Serbia",country_code:"RS",continent:"Europe",latitude:44.7866,longitude:20.4489,population:1397939},
+            {index:10,city:"Milan",country:"Italy",country_code:"IT",continent:"Europe",latitude:45.4642,longitude:9.19,population:1395274},
+            {index:11,city:"Prague",country:"Czech Republic",country_code:"CZ",continent:"Europe",latitude:50.0755,longitude:14.4378,population:1309000},
+            {index:12,city:"Brussels",country:"Belgium",country_code:"BE",continent:"Europe",latitude:50.8503,longitude:4.3517,population:1208542},
+            {index:13,city:"Frankfurt",country:"Germany",country_code:"DE",continent:"Europe",latitude:50.1109,longitude:8.6821,population:753056},
+            {index:14,city:"Amsterdam",country:"Netherlands",country_code:"NL",continent:"Europe",latitude:52.3676,longitude:4.9041,population:821752},
+            {index:15,city:"Malaga",country:"Spain",country_code:"ES",continent:"Europe",latitude:36.7213,longitude:-4.4213,population:578460},
+            {index:16,city:"Skopje",country:"North Macedonia",country_code:"MK",continent:"Europe",latitude:41.9981,longitude:21.4254,population:546824},
+            {index:17,city:"Bratislava",country:"Slovakia",country_code:"SK",continent:"Europe",latitude:48.1486,longitude:17.1077,population:424428},
+            {index:18,city:"Zurich",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:47.3769,longitude:8.5417,population:402762},
+            {index:19,city:"Nice",country:"France",country_code:"FR",continent:"Europe",latitude:43.7102,longitude:7.262,population:342669},
+            {index:20,city:"Ljubljana",country:"Slovenia",country_code:"SI",continent:"Europe",latitude:46.0569,longitude:14.5058,population:289832},
+            {index:21,city:"Bordeaux",country:"France",country_code:"FR",continent:"Europe",latitude:44.8378,longitude:-0.5792,population:257068},
+            {index:22,city:"Venice",country:"Italy",country_code:"IT",continent:"Europe",latitude:45.4408,longitude:12.3155,population:261905},
+            {index:23,city:"Freiburg",country:"Germany",country_code:"DE",continent:"Europe",latitude:47.999,longitude:7.8421,population:230241},
+            {index:24,city:"Geneva",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.2044,longitude:6.1432,population:201818},
+            {index:25,city:"Podgorica",country:"Montenegro",country_code:"ME",continent:"Europe",latitude:42.4304,longitude:19.2594,population:185937},
+            {index:26,city:"Nimes",country:"France",country_code:"FR",continent:"Europe",latitude:43.8367,longitude:4.3601,population:151001},
+            {index:27,city:"Lausanne",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.5197,longitude:6.6323,population:139111},
+            {index:28,city:"Sète",country:"France",country_code:"FR",continent:"Europe",latitude:43.4012,longitude:3.688,population:43813},
+            {index:29,city:"Santo Domingo",country:"Dominican Republic",country_code:"DO",continent:"North America",latitude:18.4861,longitude:-69.9312,population:2908607},
+            {index:30,city:"Dallas",country:"United States",country_code:"US",continent:"North America",latitude:32.7767,longitude:-96.797,population:1345047},
+            {index:31,city:"Tucson",country:"United States",country_code:"US",continent:"North America",latitude:32.2226,longitude:-110.9747,population:545975},
+            {index:32,city:"Miami",country:"United States",country_code:"US",continent:"North America",latitude:25.7617,longitude:-80.1918,population:442241},
+            {index:33,city:"Dubai",country:"United Arab Emirates",country_code:"AE",continent:"Asia",latitude:25.2048,longitude:55.2708,population:3331420},
+            {index:34,city:"Colombo",country:"Sri Lanka",country_code:"LK",continent:"Asia",latitude:6.9271,longitude:79.8612,population:752993},
+            {index:35,city:"Sydney",country:"Australia",country_code:"AU",continent:"Oceania",latitude:-33.8688,longitude:151.2093,population:5312163},
+            {index:36,city:"Brisbane",country:"Australia",country_code:"AU",continent:"Oceania",latitude:-27.4698,longitude:153.0251,population:2560720},
+            {index:37,city:"Praia",country:"Cape Verde",country_code:"CV",continent:"Africa",latitude:14.9177,longitude:-23.5092,population:159050},
+            {index:38,city:"Monaco",country:"Monaco",country_code:"MC",continent:"Europe",latitude:43.7384,longitude:7.4246,population:39000},
+            {index:39,city:"Dubrovnik",country:"Croatia",country_code:"HR",continent:"Europe",latitude:42.6507,longitude:18.0944,population:42600},
+            {index:40,city:"Sardinia",country:"Italy",country_code:"IT",continent:"Europe",latitude:40.1209,longitude:9.0129,population:1600000},
+            {index:41,city:"Gruyères",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.5841,longitude:7.0812,population:2200},
+            {index:42,city:"Belize City",country:"Belize",country_code:"BZ",continent:"North America",latitude:17.5046,longitude:-88.1962,population:57200},
+            {index:43,city:"Annecy",country:"France",country_code:"FR",continent:"Europe",latitude:45.899,longitude:6.1292,population:126000},
+            {index:44,city:"Rabat",country:"Morocco",country_code:"MA",continent:"Africa",latitude:34.0209,longitude:-6.8416,population:580000},
+            {index:45,city:"Muscat",country:"Oman",country_code:"OM",continent:"Asia",latitude:23.588,longitude:58.3829,population:1720000},
+            {index:46,city:"Luzern",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:47.0502,longitude:8.3093,population:82000},
+            {index:47,city:"Capri",country:"Italy",country_code:"IT",continent:"Europe",latitude:40.5532,longitude:14.2222,population:12200},
+            {index:48,city:"Brighton",country:"United Kingdom",country_code:"GB",continent:"Europe",latitude:50.8225,longitude:-0.1372,population:290000},
+            {index:49,city:"Tokyo",country:"Japan",country_code:"JP",continent:"Asia",latitude:35.6762,longitude:139.6503,population:13960000},
+            {index:50,city:"Singapore",country:"Singapore",country_code:"SG",continent:"Asia",latitude:1.3521,longitude:103.8198,population:5700000},
+            {index:51,city:"Cap d'Agde",country:"France",country_code:"FR",continent:"Europe",latitude:43.2798,longitude:3.5064,population:26000},
+            {index:52,city:"Copenhagen",country:"Denmark",country_code:"DK",continent:"Europe",latitude:55.6761,longitude:12.5683,population:800000},
+            {index:53,city:"Sivota",country:"Croatia",country_code:"HR",continent:"Europe",latitude:44.2307,longitude:15.1875,population:2500},
+            {index:54,city:"Sharm El-Sheikh",country:"Egypt",country_code:"EG",continent:"Africa",latitude:27.9158,longitude:34.33,population:73000}
