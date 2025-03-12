@@ -639,7 +639,7 @@
         // Load and parse CSV data
         async function loadData() {
             try {
-                const response = await fetch('snowglobe-collection.csv');
+                const response = await fetch('snowglobecollection.csv');
                 const csvData = await response.text();
                 
                 return new Promise((resolve) => {
