@@ -1,694 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snowglobe Collection | World Tour</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #3a86ff;
-            --secondary-color: #8338ec;
-            --accent-color: #ff006e;
-            --text-color: #2b2d42;
-            --light-text: #8d99ae;
-            --light-bg: #f8f9fa;
-            --snow-color: #f1faee;
-            --card-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--light-bg);
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header Styles */
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .snow-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
-            z-index: 0;
-        }
-        
-        .header-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            padding: 1rem;
-        }
-        
-        .site-title {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .site-subtitle {
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin: 0 auto 1.5rem;
-            opacity: 0.9;
-        }
-        
-        .header-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .stat-item {
-            background-color: rgba(255,255,255,0.2);
-            padding: 0.7rem 1.5rem;
-            border-radius: 50px;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .stat-item i {
-            font-size: 1.2rem;
-        }
-        
-        /* Map Section */
-        .map-section {
-            margin: 3rem 0;
-        }
-        
-        .content-card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-        
-        .content-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-title {
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-        }
-        
-        .card-body {
-            padding: 1.5rem;
-        }
-        
-        #map {
-            width: 100%;
-            height: 700px;
-        }
-        
-        /* Collection Details */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-        
-        .legend-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background-color: var(--snow-color);
-            padding: 0.5rem 1rem;
-            border-radius: 30px;
-            font-size: 0.9rem;
-        }
-        
-        .color-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        
-        .info-list {
-            list-style: none;
-            margin: 1.5rem 0;
-        }
-        
-        .info-list li {
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .info-list i {
-            color: var(--primary-color);
-        }
-        
-        .size-demo {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 1.5rem 0;
-        }
-        
-        .size-dot {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .dot {
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            opacity: 0.7;
-            border: 1px solid rgba(0,0,0,0.3);
-        }
-        
-        .dot-small { width: 15px; height: 15px; }
-        .dot-medium { width: 30px; height: 30px; }
-        .dot-large { width: 45px; height: 45px; }
-        
-        /* Top Cities Section */
-        .cities-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .city-card {
-            background-color: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-        }
-        
-        .city-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .city-image {
-            height: 150px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        
-        .city-continent {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: white;
-            font-weight: bold;
-            background-color: rgba(0,0,0,0.6);
-        }
-        
-        .city-info {
-            padding: 1.2rem;
-        }
-        
-        .city-name {
-            font-size: 1.2rem;
-            margin-bottom: 0.3rem;
-            color: var(--text-color);
-        }
-        
-        .city-country {
-            color: var(--light-text);
-            font-size: 0.9rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .city-population {
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Statistics Section */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-        
-        .stat-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-icon {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--text-color);
-        }
-        
-        .stat-label {
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-        
-        /* Footer */
-        footer {
-            background-color: var(--text-color);
-            color: white;
-            padding: 3rem 0;
-            margin-top: 4rem;
-        }
-        
-        .footer-content {
-            text-align: center;
-        }
-        
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        
-        .social-links a {
-            color: white;
-            font-size: 1.5rem;
-            transition: var(--transition);
-        }
-        
-        .social-links a:hover {
-            color: var(--accent-color);
-            transform: translateY(-3px);
-        }
-        
-        .copyright {
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        /* Loading Animation */
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 400px;
-        }
-        
-        .loading-animation {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(58, 134, 255, 0.2);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 1rem;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 1.2rem;
-            color: var(--primary-color);
-        }
-        
-        /* Responsive Adjustments */
-        @media (max-width: 992px) {
-            .two-column {
-                grid-template-columns: 1fr;
-            }
-            
-            .site-title {
-                font-size: 2.5rem;
-            }
-            
-            #map {
-                height: 500px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header-stats {
-                gap: 1rem;
-            }
-            
-            .stat-item {
-                padding: 0.5rem 1rem;
-                font-size: 0.9rem;
-            }
-            
-            .site-title {
-                font-size: 2rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .header-stats {
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-            
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>My Snowglobe Collection</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    #map { width: 100%; height: 80vh; }
+    #stats { padding: 1em; background: #f9f9f9; }
+    h1, h2 { text-align: center; }
+  </style>
 </head>
 <body>
-    <!-- Header Section -->
-    <header>
-        <div class="snow-bg"></div>
-        <div class="container">
-            <div class="header-content">
-                <h1 class="site-title">Snowglobe World Collection</h1>
-                <p class="site-subtitle">A journey around the world captured in the magic of snowglobes. Each globe tells a story of places visited and memories cherished.</p>
-                
-                <div class="header-stats" id="header-stats">
-                    <div class="stat-item">
-                        <i class="fas fa-globe-americas"></i>
-                        <span>Loading...</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-flag"></i>
-                        <span>Loading...</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-city"></i>
-                        <span>Loading...</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-users"></i>
-                        <span>Loading...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    
-    <!-- Map Section -->
-    <section class="map-section">
-        <div class="container">
-            <div class="content-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="fas fa-map-marked-alt"></i>
-                        Interactive Collection Map
-                    </h2>
-                </div>
-                <div class="card-body">
-                    <div id="map">
-                        <div class="loading-container">
-                            <div class="loading-animation"></div>
-                            <p class="loading-text">Loading your snowglobe journey...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Collection Details -->
-    <section>
-        <div class="container">
-            <div class="two-column">
-                <!-- About Collection -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-info-circle"></i>
-                            About My Collection
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <p>Welcome to my snowglobe collection! This interactive map showcases all the places from which I've collected snowglobes over the years. Each one represents a special memory or connection to these wonderful locations around the world.</p>
-                        
-                        <p>My collection started with a single snowglobe from Paris in 2010, and has grown to span multiple continents. Some were purchased during my own travels, while others were gifts from friends and family who know about my passion for these miniature worlds.</p>
-                        
-                        <h3 style="margin-top: 1.5rem; color: var(--primary-color);">Collection Highlights</h3>
-                        <ul class="info-list">
-                            <li><i class="fas fa-star"></i> <strong>Oldest Snowglobe:</strong> <span id="oldest-city">Loading...</span></li>
-                            <li><i class="fas fa-building"></i> <strong>Largest City:</strong> <span id="largest-city">Loading...</span></li>
-                            <li><i class="fas fa-home"></i> <strong>Smallest Town:</strong> <span id="smallest-city">Loading...</span></li>
-                            <li><i class="fas fa-mountain"></i> <strong>Most Remote:</strong> <span id="remote-city">Loading...</span></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Legend -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="fas fa-list"></i>
-                            Map Legend
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Continents</h3>
-                        <div class="legend-container" id="continent-legend">
-                            <!-- Dynamically populated -->
-                            <div class="legend-item">
-                                <span class="color-dot" style="background-color: blue;"></span>
-                                <span>Loading...</span>
-                            </div>
-                        </div>
-                        
-                        <h3 style="margin: 1.5rem 0 1rem; color: var(--primary-color);">Bubble Size Representation</h3>
-                        <p>The size of each bubble on the map represents the population of the city:</p>
-                        
-                        <div class="size-demo">
-                            <div class="size-dot">
-                                <div class="dot dot-small"></div>
-                                <span>Small City</span>
-                            </div>
-                            <div class="size-dot">
-                                <div class="dot dot-medium"></div>
-                                <span>Medium City</span>
-                            </div>
-                            <div class="size-dot">
-                                <div class="dot dot-large"></div>
-                                <span>Large City</span>
-                            </div>
-                        </div>
-                        
-                        <p style="margin-top: 1rem; font-style: italic; color: var(--light-text);">
-                            <i class="fas fa-info-circle"></i> Hover over any bubble on the map to see detailed information about that location.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Top Cities Section -->
-    <section style="margin-top: 3rem;">
-        <div class="container">
-            <div class="content-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="fas fa-bookmark"></i>
-                        Featured Snowglobes
-                    </h2>
-                </div>
-                <div class="card-body">
-                    <div class="cities-grid" id="featured-cities">
-                        <!-- Dynamically populated -->
-                        <div class="city-card">
-                            <div class="loading-container" style="height: 200px;">
-                                <div class="loading-animation"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Collection Statistics -->
-    <section style="margin-top: 3rem;">
-        <div class="container">
-            <div class="content-card">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <i class="fas fa-chart-pie"></i>
-                        Collection Statistics
-                    </h2>
-                </div>
-                <div class="card-body">
-                    <div class="stats-container" id="stats-container">
-                        <!-- Dynamically populated -->
-                        <div class="stat-card">
-                            <div class="loading-animation" style="width: 30px; height: 30px; margin: 0 auto;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <h2>Snowglobe World Collection</h2>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-github"></i></a>
-                    <a href="#"><i class="fab fa-instagram"></i></a>
-                    <a href="#"><i class="fab fa-pinterest"></i></a>
-                    <a href="#"><i class="fab fa-twitter"></i></a>
-                </div>
-                <p class="copyright">© 2025 Snowglobe Collection. Created with ❄️ and code.</p>
-            </div>
-        </div>
-    </footer>
-    
-    <script>
-        // City image placeholders by continent
-        const continentImages = {
-            'Europe': 'https://source.unsplash.com/800x600/?europe,city',
-            'North America': 'https://source.unsplash.com/800x600/?america,city',
-            'Asia': 'https://source.unsplash.com/800x600/?asia,city',
-            'Oceania': 'https://source.unsplash.com/800x600/?oceania,city',
-            'Africa': 'https://source.unsplash.com/800x600/?africa,city',
-            'South America': 'https://source.unsplash.com/800x600/?southamerica,city',
-            'Antarctica': 'https://source.unsplash.com/800x600/?antarctica'
-        };
-        
-        // Continent colors
-        const continentColors = {
-            'Europe': '#3a86ff',
-            'North America': '#ff006e',
-            'Asia': '#8ac926',
-            'Oceania': '#8338ec',
-            'Africa': '#fb5607',
-            'South America': '#ffbe0b',
-            'Antarctica': '#00b4d8'
-        };
-        
-        // Embed the snowglobe collection data directly
-        const snowglobeData = [
-            {index:1,city:"Moscow",country:"Russia",country_code:"RU",continent:"Europe",latitude:55.7558,longitude:37.6173,population:12537954},
-            {index:2,city:"Rome",country:"Italy",country_code:"IT",continent:"Europe",latitude:41.9028,longitude:12.4964,population:2873000},
-            {index:3,city:"Paris",country:"France",country_code:"FR",continent:"Europe",latitude:48.8566,longitude:2.3522,population:2161000},
-            {index:4,city:"Vienna",country:"Austria",country_code:"AT",continent:"Europe",latitude:48.2082,longitude:16.3738,population:1897491},
-            {index:5,city:"Budapest",country:"Hungary",country_code:"HU",continent:"Europe",latitude:47.4979,longitude:19.0402,population:1752286},
-            {index:6,city:"Barcelona",country:"Spain",country_code:"ES",continent:"Europe",latitude:41.3851,longitude:2.1734,population:1620343},
-            {index:7,city:"Munich",country:"Germany",country_code:"DE",continent:"Europe",latitude:48.1351,longitude:11.582,population:1471508},
-            {index:8,city:"Abu Dhabi",country:"United Arab Emirates",country_code:"AE",continent:"Europe",latitude:24.4539,longitude:54.3773,population:1450000},
-            {index:9,city:"Belgrade",country:"Serbia",country_code:"RS",continent:"Europe",latitude:44.7866,longitude:20.4489,population:1397939},
-            {index:10,city:"Milan",country:"Italy",country_code:"IT",continent:"Europe",latitude:45.4642,longitude:9.19,population:1395274},
-            {index:11,city:"Prague",country:"Czech Republic",country_code:"CZ",continent:"Europe",latitude:50.0755,longitude:14.4378,population:1309000},
-            {index:12,city:"Brussels",country:"Belgium",country_code:"BE",continent:"Europe",latitude:50.8503,longitude:4.3517,population:1208542},
-            {index:13,city:"Frankfurt",country:"Germany",country_code:"DE",continent:"Europe",latitude:50.1109,longitude:8.6821,population:753056},
-            {index:14,city:"Amsterdam",country:"Netherlands",country_code:"NL",continent:"Europe",latitude:52.3676,longitude:4.9041,population:821752},
-            {index:15,city:"Malaga",country:"Spain",country_code:"ES",continent:"Europe",latitude:36.7213,longitude:-4.4213,population:578460},
-            {index:16,city:"Skopje",country:"North Macedonia",country_code:"MK",continent:"Europe",latitude:41.9981,longitude:21.4254,population:546824},
-            {index:17,city:"Bratislava",country:"Slovakia",country_code:"SK",continent:"Europe",latitude:48.1486,longitude:17.1077,population:424428},
-            {index:18,city:"Zurich",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:47.3769,longitude:8.5417,population:402762},
-            {index:19,city:"Nice",country:"France",country_code:"FR",continent:"Europe",latitude:43.7102,longitude:7.262,population:342669},
-            {index:20,city:"Ljubljana",country:"Slovenia",country_code:"SI",continent:"Europe",latitude:46.0569,longitude:14.5058,population:289832},
-            {index:21,city:"Bordeaux",country:"France",country_code:"FR",continent:"Europe",latitude:44.8378,longitude:-0.5792,population:257068},
-            {index:22,city:"Venice",country:"Italy",country_code:"IT",continent:"Europe",latitude:45.4408,longitude:12.3155,population:261905},
-            {index:23,city:"Freiburg",country:"Germany",country_code:"DE",continent:"Europe",latitude:47.999,longitude:7.8421,population:230241},
-            {index:24,city:"Geneva",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.2044,longitude:6.1432,population:201818},
-            {index:25,city:"Podgorica",country:"Montenegro",country_code:"ME",continent:"Europe",latitude:42.4304,longitude:19.2594,population:185937},
-            {index:26,city:"Nimes",country:"France",country_code:"FR",continent:"Europe",latitude:43.8367,longitude:4.3601,population:151001},
-            {index:27,city:"Lausanne",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.5197,longitude:6.6323,population:139111},
-            {index:28,city:"Sète",country:"France",country_code:"FR",continent:"Europe",latitude:43.4012,longitude:3.688,population:43813},
-            {index:29,city:"Santo Domingo",country:"Dominican Republic",country_code:"DO",continent:"North America",latitude:18.4861,longitude:-69.9312,population:2908607},
-            {index:30,city:"Dallas",country:"United States",country_code:"US",continent:"North America",latitude:32.7767,longitude:-96.797,population:1345047},
-            {index:31,city:"Tucson",country:"United States",country_code:"US",continent:"North America",latitude:32.2226,longitude:-110.9747,population:545975},
-            {index:32,city:"Miami",country:"United States",country_code:"US",continent:"North America",latitude:25.7617,longitude:-80.1918,population:442241},
-            {index:33,city:"Dubai",country:"United Arab Emirates",country_code:"AE",continent:"Asia",latitude:25.2048,longitude:55.2708,population:3331420},
-            {index:34,city:"Colombo",country:"Sri Lanka",country_code:"LK",continent:"Asia",latitude:6.9271,longitude:79.8612,population:752993},
-            {index:35,city:"Sydney",country:"Australia",country_code:"AU",continent:"Oceania",latitude:-33.8688,longitude:151.2093,population:5312163},
-            {index:36,city:"Brisbane",country:"Australia",country_code:"AU",continent:"Oceania",latitude:-27.4698,longitude:153.0251,population:2560720},
-            {index:37,city:"Praia",country:"Cape Verde",country_code:"CV",continent:"Africa",latitude:14.9177,longitude:-23.5092,population:159050},
-            {index:38,city:"Monaco",country:"Monaco",country_code:"MC",continent:"Europe",latitude:43.7384,longitude:7.4246,population:39000},
-            {index:39,city:"Dubrovnik",country:"Croatia",country_code:"HR",continent:"Europe",latitude:42.6507,longitude:18.0944,population:42600},
-            {index:40,city:"Sardinia",country:"Italy",country_code:"IT",continent:"Europe",latitude:40.1209,longitude:9.0129,population:1600000},
-            {index:41,city:"Gruyères",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:46.5841,longitude:7.0812,population:2200},
-            {index:42,city:"Belize City",country:"Belize",country_code:"BZ",continent:"North America",latitude:17.5046,longitude:-88.1962,population:57200},
-            {index:43,city:"Annecy",country:"France",country_code:"FR",continent:"Europe",latitude:45.899,longitude:6.1292,population:126000},
-            {index:44,city:"Rabat",country:"Morocco",country_code:"MA",continent:"Africa",latitude:34.0209,longitude:-6.8416,population:580000},
-            {index:45,city:"Muscat",country:"Oman",country_code:"OM",continent:"Asia",latitude:23.588,longitude:58.3829,population:1720000},
-            {index:46,city:"Luzern",country:"Switzerland",country_code:"CH",continent:"Europe",latitude:47.0502,longitude:8.3093,population:82000},
-            {index:47,city:"Capri",country:"Italy",country_code:"IT",continent:"Europe",latitude:40.5532,longitude:14.2222,population:12200},
-            {index:48,city:"Brighton",country:"United Kingdom",country_code:"GB",continent:"Europe",latitude:50.8225,longitude:-0.1372,population:290000},
-            {index:49,city:"Tokyo",country:"Japan",country_code:"JP",continent:"Asia",latitude:35.6762,longitude:139.6503,population:13960000},
-            {index:50,city:"Singapore",country:"Singapore",country_code:"SG",continent:"Asia",latitude:1.3521,longitude:103.8198,population:5700000},
-            {index:51,city:"Cap d'Agde",country:"France",country_code:"FR",continent:"Europe",latitude:43.2798,longitude:3.5064,population:26000},
-            {index:52,city:"Copenhagen",country:"Denmark",country_code:"DK",continent:"Europe",latitude:55.6761,longitude:12.5683,population:800000},
-            {index:53,city:"Sivota",country:"Croatia",country_code:"HR",continent:"Europe",latitude:44.2307,longitude:15.1875,population:2500},
-            {index:54,city:"Sharm El-Sheikh",country:"Egypt",country_code:"EG",continent:"Africa",latitude:27.9158,longitude:34.33,population:73000}
+  <h1>My Snowglobe Collection</h1>
+  <div id="map"></div>
+  <div id="stats">
+    <h2>Collection Statistics</h2>
+    <div id="stats-content"></div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet Heatmap Plugin -->
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script>
+    // Example dataset for your snowglobes.
+    // Each item contains: latitude, longitude, country, and description.
+    const snowglobes = [
+      { lat: 51.5074, lng: -0.1278, country: "United Kingdom", description: "London Snowglobe - Classic design" },
+      { lat: 48.8566, lng: 2.3522, country: "France", description: "Paris Snowglobe - Eiffel Tower" },
+      { lat: 40.7128, lng: -74.0060, country: "USA", description: "New York Snowglobe - Cityscape" },
+      { lat: 35.6895, lng: 139.6917, country: "Japan", description: "Tokyo Snowglobe - Neon lights" },
+      // Add more data points as needed...
+    ];
+
+    // Initialize the map
+    const map = L.map('map').setView([20, 0], 2);  // world view
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Create a layer group for markers (data points)
+    const markersLayer = L.layerGroup().addTo(map);
+
+    // Array to hold heatmap points (each point as [lat, lng, intensity])
+    const heatPoints = [];
+
+    // Create markers with tooltips and add heatmap points
+    snowglobes.forEach(item => {
+      const marker = L.marker([item.lat, item.lng]).addTo(markersLayer);
+      marker.bindPopup(`<strong>${item.country}</strong><br>${item.description}`);
+      
+      // Adding the point for the heatmap with an intensity of 0.5 (adjust as needed)
+      heatPoints.push([item.lat, item.lng, 0.5]);
+    });
+
+    // Add heatmap layer
+    const heat = L.heatLayer(heatPoints, { 
+      radius: 25,
+      blur: 15,
+      maxZoom: 5,
+    }).addTo(map);
+
+    // Calculate simple statistics
+    function calculateStats(data) {
+      const stats = {
+        total: data.length,
+        byCountry: {}
+      };
+
+      data.forEach(item => {
+        stats.byCountry[item.country] = (stats.byCountry[item.country] || 0) + 1;
+      });
+      
+      return stats;
+    }
+
+    // Render the statistics on the page
+    function renderStats(stats) {
+      const container = document.getElementById('stats-content');
+      container.innerHTML = `<p><strong>Total Snowglobes:</strong> ${stats.total}</p>`;
+      
+      let list = '<ul>';
+      for (const country in stats.byCountry) {
+        list += `<li>${country}: ${stats.byCountry[country]}</li>`;
+      }
+      list += '</ul>';
+      
+      container.innerHTML += list;
+    }
+
+    const stats = calculateStats(snowglobes);
+    renderStats(stats);
+  </script>
+</body>
+</html>
