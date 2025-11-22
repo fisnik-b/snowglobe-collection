@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snow Globe Collection Map</title>
+    <title>Snow Globe Collection</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,143 +14,305 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, #f7f9fc 0%, #ffffff 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #1a1a1a;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 30px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .nav-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .nav-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .nav-stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 60px 40px;
         }
 
-        header {
+        .hero {
             text-align: center;
-            color: white;
-            margin-bottom: 30px;
+            margin-bottom: 60px;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 300;
-            letter-spacing: 2px;
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-
-        .map-container {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        #map {
-            height: 600px;
-            width: 100%;
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #64748b;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .filters {
             background: white;
-            padding: 20px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
             justify-content: center;
             align-items: center;
         }
 
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 10px;
+        }
+
         .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid #667eea;
+            padding: 12px 24px;
+            border: 2px solid #e2e8f0;
             background: white;
-            color: #667eea;
-            border-radius: 25px;
+            color: #475569;
+            border-radius: 100px;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
             font-weight: 500;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
         }
 
         .filter-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
+            border-color: #2563eb;
+            color: #2563eb;
+            background: #eff6ff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
         }
 
         .filter-btn.active {
-            background: #667eea;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
         }
 
-        .stats {
+        .map-card {
             background: white;
-            padding: 15px 20px;
-            text-align: center;
-            color: #667eea;
-            font-weight: 500;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        #map {
+            height: 650px;
+            width: 100%;
+        }
+
+        .map-footer {
+            padding: 25px 30px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .map-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .last-updated {
+            font-size: 0.85rem;
+            color: #94a3b8;
         }
 
         .leaflet-popup-content-wrapper {
-            border-radius: 10px;
-            padding: 5px;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 250px;
         }
 
         .popup-content {
-            padding: 10px;
+            padding: 20px;
         }
 
         .popup-content h3 {
-            color: #667eea;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+            color: #1e40af;
+            margin-bottom: 12px;
+            font-size: 1.25rem;
+            font-weight: 600;
         }
 
         .popup-content p {
-            margin: 5px 0;
-            color: #555;
+            margin: 8px 0;
+            color: #475569;
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .popup-content strong {
+            color: #64748b;
+            font-weight: 600;
+            min-width: 80px;
         }
 
         .popup-image {
             width: 100%;
-            height: 150px;
+            height: 180px;
             object-fit: cover;
-            border-radius: 8px;
-            margin-top: 10px;
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #999;
-            font-size: 0.8rem;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: white;
-            font-size: 1.2rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 15px;
         }
 
         .error {
-            background: #ff6b6b;
-            color: white;
+            background: #fef2f2;
+            color: #991b1b;
             padding: 20px;
-            border-radius: 10px;
-            margin: 20px;
+            border-radius: 12px;
+            border: 1px solid #fecaca;
             text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Custom marker animation */
+        @keyframes markerPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .custom-marker {
+            animation: markerPulse 2s ease-in-out infinite;
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 1.8rem;
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .nav-stats {
+                display: none;
+            }
+
+            .container {
+                padding: 40px 20px;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
             }
 
             #map {
@@ -157,42 +320,97 @@
             }
 
             .filters {
-                padding: 15px;
+                padding: 20px;
             }
 
             .filter-btn {
-                font-size: 0.8rem;
-                padding: 8px 15px;
+                font-size: 0.85rem;
+                padding: 10px 18px;
+            }
+
+            .map-footer {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .map-stats {
+                gap: 25px;
+            }
+
+            .logo-text {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>❄️ Snow Globe Collection ❄️</h1>
-            <p class="subtitle">A journey around the world in glass</p>
-        </header>
-
-        <div class="map-container">
-            <div class="filters" id="filters">
-                <button class="filter-btn active" data-continent="all">All Continents</button>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <span class="logo-icon">❄️</span>
+                <span class="logo-text">Snow Globe Collection</span>
             </div>
-            <div class="stats" id="stats">Loading collection...</div>
+            <div class="nav-stats">
+                <div class="nav-stat">
+                    <div class="nav-stat-value" id="nav-total">0</div>
+                    <div class="nav-stat-label">Collections</div>
+                </div>
+                <div class="nav-stat">
+                    <div class="nav-stat-value" id="nav-countries">0</div>
+                    <div class="nav-stat-label">Countries</div>
+                </div>
+                <div class="nav-stat">
+                    <div class="nav-stat-value" id="nav-continents">0</div>
+                    <div class="nav-stat-label">Continents</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>A Journey Around the World</h1>
+            <p class="hero-subtitle">Exploring the globe, one snow globe at a time. Each piece tells a story of adventure and memory.</p>
+        </div>
+
+        <div class="filters" id="filters">
+            <span class="filter-label">Filter by:</span>
+            <button class="filter-btn active" data-continent="all">All Continents</button>
+        </div>
+
+        <div class="map-card">
             <div id="map"></div>
+            <div class="map-footer">
+                <div class="map-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-showing">0</div>
+                        <div class="stat-label">Showing</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="stat-countries">0</div>
+                        <div class="stat-label">Countries</div>
+                    </div>
+                </div>
+                <div class="last-updated" id="last-updated">Loading...</div>
+            </div>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script>
-        // Configuration - Using published CSV link
+        // Configuration
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQodB81nwsmqRIw4dE_HUsbDt7kOhSEsRcq0yilv-F037j7cXWvYMiceHYq_zwSh3klICQ2OQokHJvR/pub?gid=302830052&single=true&output=csv';
 
         // Initialize map
-        const map = L.map('map').setView([20, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
+        const map = L.map('map', {
+            zoomControl: true,
+            scrollWheelZoom: true
+        }).setView([30, 0], 2);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CARTO',
             maxZoom: 19
         }).addTo(map);
 
@@ -200,12 +418,26 @@
         let snowGlobes = [];
         let currentContinent = 'all';
 
-        // Custom marker icon
+        // Custom marker icon - modern blue style
         const snowGlobeIcon = L.divIcon({
             className: 'custom-marker',
-            html: '<div style="background: #667eea; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"></div>',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            html: `
+                <div style="
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 16px;
+                ">❄️</div>
+            `,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
         });
 
         // Fetch and parse data
@@ -213,7 +445,7 @@
             try {
                 const response = await fetch(SHEET_URL);
                 if (!response.ok) {
-                    throw new Error('Unable to fetch data. Please make sure the Google Sheet is publicly accessible.');
+                    throw new Error('Unable to fetch data. Please check your connection.');
                 }
                 
                 const csvText = await response.text();
@@ -236,9 +468,10 @@
                         setupFilters();
                         displayMarkers();
                         updateStats();
+                        updateLastUpdated();
                     },
                     error: function(error) {
-                        showError('Error parsing spreadsheet data: ' + error.message);
+                        showError('Error loading collection: ' + error.message);
                     }
                 });
             } catch (error) {
@@ -260,7 +493,6 @@
                 filtersContainer.appendChild(btn);
             });
 
-            // All button click handler
             document.querySelector('[data-continent="all"]').addEventListener('click', () => filterByContinent('all'));
         }
 
@@ -268,7 +500,6 @@
         function filterByContinent(continent) {
             currentContinent = continent;
             
-            // Update active button
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.continent === continent) {
@@ -282,16 +513,13 @@
 
         // Display markers on map
         function displayMarkers() {
-            // Clear existing markers
             markers.forEach(marker => map.removeLayer(marker));
             markers = [];
 
-            // Filter snow globes
             const filtered = currentContinent === 'all' 
                 ? snowGlobes 
                 : snowGlobes.filter(sg => sg.continent === currentContinent);
 
-            // Add markers
             filtered.forEach(sg => {
                 const lat = parseFloat(sg.latitude);
                 const lng = parseFloat(sg.longitude);
@@ -303,7 +531,6 @@
                 markers.push(marker);
             });
 
-            // Fit map to markers
             if (markers.length > 0) {
                 const group = new L.featureGroup(markers);
                 map.fitBounds(group.getBounds().pad(0.1));
@@ -315,9 +542,9 @@
             return `
                 <div class="popup-content">
                     <h3>${snowGlobe.city || 'Unknown City'}</h3>
-                    <p><strong>Country:</strong> ${snowGlobe.country || 'Unknown'}</p>
-                    <p><strong>Continent:</strong> ${snowGlobe.continent || 'Unknown'}</p>
-                    ${snowGlobe.photo ? `<img src="${snowGlobe.photo}" class="popup-image" alt="${snowGlobe.city}">` : '<div class="popup-image">Photo coming soon</div>'}
+                    <p><strong>Country</strong> ${snowGlobe.country || 'Unknown'}</p>
+                    <p><strong>Continent</strong> ${snowGlobe.continent || 'Unknown'}</p>
+                    ${snowGlobe.photo ? `<img src="${snowGlobe.photo}" class="popup-image" alt="${snowGlobe.city}">` : '<div class="popup-image">📸 Photo coming soon</div>'}
                 </div>
             `;
         }
@@ -329,15 +556,33 @@
                 : snowGlobes.filter(sg => sg.continent === currentContinent);
 
             const countries = new Set(filtered.map(sg => sg.country)).size;
-            const continents = new Set(snowGlobes.map(sg => sg.continent)).size;
+            const totalCountries = new Set(snowGlobes.map(sg => sg.country)).size;
+            const totalContinents = new Set(snowGlobes.map(sg => sg.continent)).size;
 
-            document.getElementById('stats').textContent = 
-                `${filtered.length} snow globes ${currentContinent === 'all' ? `across ${countries} countries and ${continents} continents` : `in ${currentContinent}`}`;
+            // Update nav stats
+            document.getElementById('nav-total').textContent = snowGlobes.length;
+            document.getElementById('nav-countries').textContent = totalCountries;
+            document.getElementById('nav-continents').textContent = totalContinents;
+
+            // Update footer stats
+            document.getElementById('stat-showing').textContent = filtered.length;
+            document.getElementById('stat-countries').textContent = countries;
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const formatted = now.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('last-updated').textContent = `Last updated: ${formatted}`;
         }
 
         // Show error message
         function showError(message) {
-            document.getElementById('stats').innerHTML = 
+            document.getElementById('last-updated').innerHTML = 
                 `<div class="error">${message}</div>`;
         }
 
