@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow Globe Collection Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats {
+            background: white;
+            padding: 15px 20px;
+            text-align: center;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .popup-content {
+            padding: 10px;
+        }
+
+        .popup-content h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .popup-content p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .popup-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 10px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            #map {
+                height: 500px;
+            }
+
+            .filters {
+                padding: 15px;
+            }
+
+            .filter-btn {
+                font-size: 0.8rem;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>❄️ Snow Globe Collection ❄️</h1>
+            <p class="subtitle">A journey around the world in glass</p>
+        </header>
+
+        <div class="map-container">
+            <div class="filters" id="filters">
+                <button class="filter-btn active" data-continent="all">All Continents</button>
+            </div>
+            <div class="stats" id="stats">Loading collection...</div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        // Configuration - Using published CSV link
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQodB81nwsmqRIw4dE_HUsbDt7kOhSEsRcq0yilv-F037j7cXWvYMiceHYq_zwSh3klICQ2OQokHJvR/pub?gid=302830052&single=true&output=csv';
+
+        // Initialize map
+        const map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        let markers = [];
+        let snowGlobes = [];
+        let currentContinent = 'all';
+
+        // Custom marker icon
+        const snowGlobeIcon = L.divIcon({
+            className: 'custom-marker',
+            html: '<div style="background: #667eea; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3);"></div>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        // Fetch and parse data
+        async function loadSnowGlobes() {
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) {
+                    throw new Error('Unable to fetch data. Please make sure the Google Sheet is publicly accessible.');
+                }
+                
+                const csvText = await response.text();
+                
+                Papa.parse(csvText, {
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        snowGlobes = results.data.filter(row => 
+                            row.Latitude && row.Longitude && 
+                            !isNaN(parseFloat(row.Latitude)) && 
+                            !isNaN(parseFloat(row.Longitude))
+                        );
+                        
+                        if (snowGlobes.length === 0) {
+                            showError('No valid location data found in the spreadsheet.');
+                            return;
+                        }
+
+                        setupFilters();
+                        displayMarkers();
+                        updateStats();
+                    },
+                    error: function(error) {
+                        showError('Error parsing spreadsheet data: ' + error.message);
+                    }
+                });
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        // Setup continent filters
+        function setupFilters() {
+            const continents = [...new Set(snowGlobes.map(sg => sg.Continent))].filter(c => c);
+            const filtersContainer = document.getElementById('filters');
+            
+            continents.sort().forEach(continent => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = continent;
+                btn.dataset.continent = continent;
+                btn.addEventListener('click', () => filterByContinent(continent));
+                filtersContainer.appendChild(btn);
+            });
+
+            // All button click handler
+            document.querySelector('[data-continent="all"]').addEventListener('click', () => filterByContinent('all'));
+        }
+
+        // Filter markers by continent
+        function filterByContinent(continent) {
+            currentContinent = continent;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.continent === continent) {
+                    btn.classList.add('active');
+                }
+            });
+
+            displayMarkers();
+            updateStats();
+        }
+
+        // Display markers on map
+        function displayMarkers() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            // Filter snow globes
+            const filtered = currentContinent === 'all' 
+                ? snowGlobes 
+                : snowGlobes.filter(sg => sg.Continent === currentContinent);
+
+            // Add markers
+            filtered.forEach(sg => {
+                const lat = parseFloat(sg.Latitude);
+                const lng = parseFloat(sg.Longitude);
+
+                const marker = L.marker([lat, lng], { icon: snowGlobeIcon })
+                    .bindPopup(createPopupContent(sg))
+                    .addTo(map);
+
+                markers.push(marker);
+            });
+
+            // Fit map to markers
+            if (markers.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+        }
+
+        // Create popup content
+        function createPopupContent(snowGlobe) {
+            return `
+                <div class="popup-content">
+                    <h3>${snowGlobe.City || 'Unknown City'}</h3>
+                    <p><strong>Country:</strong> ${snowGlobe.Country || 'Unknown'}</p>
+                    <p><strong>Continent:</strong> ${snowGlobe.Continent || 'Unknown'}</p>
+                    ${snowGlobe.Photo ? `<img src="${snowGlobe.Photo}" class="popup-image" alt="${snowGlobe.City}">` : '<div class="popup-image">Photo coming soon</div>'}
+                </div>
+            `;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const filtered = currentContinent === 'all' 
+                ? snowGlobes 
+                : snowGlobes.filter(sg => sg.Continent === currentContinent);
+
+            const countries = new Set(filtered.map(sg => sg.Country)).size;
+            const continents = new Set(snowGlobes.map(sg => sg.Continent)).size;
+
+            document.getElementById('stats').textContent = 
+                `${filtered.length} snow globes ${currentContinent === 'all' ? `across ${countries} countries and ${continents} continents` : `in ${currentContinent}`}`;
+        }
+
+        // Show error message
+        function showError(message) {
+            document.getElementById('stats').innerHTML = 
+                `<div class="error">${message}</div>`;
+        }
+
+        // Load data on page load
+        loadSnowGlobes();
+    </script>
+</body>
+</html>
