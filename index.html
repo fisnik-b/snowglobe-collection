@@ -216,34 +216,24 @@
             position: relative;
         }
 
-        .continent-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: currentColor;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
         .continent-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px) scale(1.02);
             border-color: currentColor;
-        }
-
-        .continent-card:hover::after {
-            opacity: 1;
+            box-shadow: 0 12px 40px rgba(14, 165, 233, 0.25);
         }
 
         .continent-card.active {
             border-color: currentColor;
-            box-shadow: 0 8px 32px rgba(14, 165, 233, 0.2);
+            box-shadow: 0 12px 40px rgba(14, 165, 233, 0.3);
+            transform: scale(1.05);
         }
 
-        .continent-card.active::after {
-            opacity: 1;
+        .continent-card.active .continent-card-count {
+            font-weight: 900;
+        }
+
+        .continent-card.active .continent-card-name {
+            font-weight: 800;
         }
 
         .continent-card-count {
@@ -582,16 +572,6 @@
                 <div class="stat-card-label">Countries</div>
                 <div class="stat-card-sublabel">Across the world</div>
             </div>
-            <div class="stat-card glass">
-                <div class="stat-card-value" id="stat-continents">0</div>
-                <div class="stat-card-label">Continents</div>
-                <div class="stat-card-sublabel">Explored</div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-card-value" id="stat-newest">...</div>
-                <div class="stat-card-label">Latest Addition</div>
-                <div class="stat-card-sublabel" id="stat-newest-country">...</div>
-            </div>
         </div>
 
         <!-- Continent Stats -->
@@ -627,6 +607,71 @@
         // Configuration
         const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQodB81nwsmqRIw4dE_HUsbDt7kOhSEsRcq0yilv-F037j7cXWvYMiceHYq_zwSh3klICQ2OQokHJvR/pub?gid=302830052&single=true&output=csv';
 
+        // Country flag emojis
+        const COUNTRY_FLAGS = {
+            'Russia': '🇷🇺',
+            'Italy': '🇮🇹',
+            'France': '🇫🇷',
+            'Hungary': '🇭🇺',
+            'Spain': '🇪🇸',
+            'Germany': '🇩🇪',
+            'Austria': '🇦🇹',
+            'Switzerland': '🇨🇭',
+            'Netherlands': '🇳🇱',
+            'Belgium': '🇧🇪',
+            'Czech Republic': '🇨🇿',
+            'Poland': '🇵🇱',
+            'Portugal': '🇵🇹',
+            'Greece': '🇬🇷',
+            'Turkey': '🇹🇷',
+            'United Kingdom': '🇬🇧',
+            'Ireland': '🇮🇪',
+            'Denmark': '🇩🇰',
+            'Sweden': '🇸🇪',
+            'Norway': '🇳🇴',
+            'Finland': '🇫🇮',
+            'Iceland': '🇮🇸',
+            'Croatia': '🇭🇷',
+            'Slovenia': '🇸🇮',
+            'Romania': '🇷🇴',
+            'Bulgaria': '🇧🇬',
+            'Serbia': '🇷🇸',
+            'Ukraine': '🇺🇦',
+            'China': '🇨🇳',
+            'Japan': '🇯🇵',
+            'South Korea': '🇰🇷',
+            'Thailand': '🇹🇭',
+            'Vietnam': '🇻🇳',
+            'Singapore': '🇸🇬',
+            'Malaysia': '🇲🇾',
+            'Indonesia': '🇮🇩',
+            'Philippines': '🇵🇭',
+            'India': '🇮🇳',
+            'Nepal': '🇳🇵',
+            'Sri Lanka': '🇱🇰',
+            'United Arab Emirates': '🇦🇪',
+            'Israel': '🇮🇱',
+            'Jordan': '🇯🇴',
+            'USA': '🇺🇸',
+            'United States': '🇺🇸',
+            'Canada': '🇨🇦',
+            'Mexico': '🇲🇽',
+            'Brazil': '🇧🇷',
+            'Argentina': '🇦🇷',
+            'Chile': '🇨🇱',
+            'Peru': '🇵🇪',
+            'Colombia': '🇨🇴',
+            'Ecuador': '🇪🇨',
+            'Australia': '🇦🇺',
+            'New Zealand': '🇳🇿',
+            'Egypt': '🇪🇬',
+            'Morocco': '🇲🇦',
+            'South Africa': '🇿🇦',
+            'Kenya': '🇰🇪',
+            'Tanzania': '🇹🇿',
+            'Tunisia': '🇹🇳'
+        };
+
         // Continent colors - Snowflake inspired
         const CONTINENT_COLORS = {
             'Europe': { color: '#0ea5e9', class: 'europe', name: 'Europe' },
@@ -652,28 +697,28 @@
         let snowGlobes = [];
         let currentContinent = 'all';
 
-        // Create custom marker for continent
-        function createMarkerIcon(continent) {
+        // Create custom marker for continent with country flag
+        function createMarkerIcon(continent, country) {
             const continentInfo = CONTINENT_COLORS[continent] || { color: '#0ea5e9' };
+            const flag = COUNTRY_FLAGS[country] || '🌍';
             return L.divIcon({
                 className: 'custom-marker',
                 html: `
                     <div style="
                         background: ${continentInfo.color};
-                        width: 30px;
-                        height: 30px;
+                        width: 32px;
+                        height: 32px;
                         border-radius: 50%;
                         border: 3px solid white;
                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        color: white;
-                        font-size: 15px;
-                    ">❄️</div>
+                        font-size: 18px;
+                    ">${flag}</div>
                 `,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
             });
         }
 
@@ -800,7 +845,7 @@
                 const lng = parseFloat(sg.longitude);
 
                 const marker = L.marker([lat, lng], { 
-                    icon: createMarkerIcon(sg.continent) 
+                    icon: createMarkerIcon(sg.continent, sg.country) 
                 })
                 .bindPopup(createPopupContent(sg))
                 .addTo(map);
@@ -835,14 +880,8 @@
             const totalCountries = new Set(snowGlobes.map(sg => sg.country)).size;
             const totalContinents = new Set(snowGlobes.map(sg => sg.continent)).size;
             
-            // Get most recent (assuming last in list)
-            const newest = snowGlobes[snowGlobes.length - 1];
-            
             document.getElementById('stat-total').textContent = snowGlobes.length;
             document.getElementById('stat-countries').textContent = totalCountries;
-            document.getElementById('stat-continents').textContent = totalContinents;
-            document.getElementById('stat-newest').textContent = newest ? newest.city : 'N/A';
-            document.getElementById('stat-newest-country').textContent = newest ? newest.country : '';
 
             document.getElementById('nav-total').textContent = snowGlobes.length;
             document.getElementById('nav-countries').textContent = totalCountries;
@@ -860,24 +899,28 @@
                 countryCounts[sg.country] = (countryCounts[sg.country] || 0) + 1;
             });
 
+            // Filter to only show countries with more than 2 snow globes
+            const filteredCountries = Object.entries(countryCounts).filter(([country, count]) => count > 2);
+
             const container = document.getElementById('country-list');
             const listContainer = document.getElementById('country-list-container');
             const countElement = document.getElementById('country-list-count');
             
-            const totalCountries = Object.keys(countryCounts).length;
+            const totalCountries = filteredCountries.length;
             
             if (totalCountries > 0) {
                 listContainer.style.display = 'block';
-                countElement.textContent = `${totalCountries} ${totalCountries === 1 ? 'country' : 'countries'}`;
+                countElement.textContent = `${totalCountries} ${totalCountries === 1 ? 'country' : 'countries'} with 3+ snow globes`;
                 container.innerHTML = '';
 
-                Object.entries(countryCounts)
+                filteredCountries
                     .sort((a, b) => b[1] - a[1])
                     .forEach(([country, count]) => {
+                        const flag = COUNTRY_FLAGS[country] || '🌍';
                         const item = document.createElement('div');
                         item.className = 'country-item';
                         item.innerHTML = `
-                            <span class="country-name">${country}</span>
+                            <span class="country-name">${flag} ${country}</span>
                             <span class="country-count">${count}</span>
                         `;
                         container.appendChild(item);
