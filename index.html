@@ -223,9 +223,9 @@
                     skipEmptyLines: true,
                     complete: function(results) {
                         snowGlobes = results.data.filter(row => 
-                            row.Latitude && row.Longitude && 
-                            !isNaN(parseFloat(row.Latitude)) && 
-                            !isNaN(parseFloat(row.Longitude))
+                            row.latitude && row.longitude && 
+                            !isNaN(parseFloat(row.latitude)) && 
+                            !isNaN(parseFloat(row.longitude))
                         );
                         
                         if (snowGlobes.length === 0) {
@@ -248,7 +248,7 @@
 
         // Setup continent filters
         function setupFilters() {
-            const continents = [...new Set(snowGlobes.map(sg => sg.Continent))].filter(c => c);
+            const continents = [...new Set(snowGlobes.map(sg => sg.continent))].filter(c => c);
             const filtersContainer = document.getElementById('filters');
             
             continents.sort().forEach(continent => {
@@ -289,12 +289,12 @@
             // Filter snow globes
             const filtered = currentContinent === 'all' 
                 ? snowGlobes 
-                : snowGlobes.filter(sg => sg.Continent === currentContinent);
+                : snowGlobes.filter(sg => sg.continent === currentContinent);
 
             // Add markers
             filtered.forEach(sg => {
-                const lat = parseFloat(sg.Latitude);
-                const lng = parseFloat(sg.Longitude);
+                const lat = parseFloat(sg.latitude);
+                const lng = parseFloat(sg.longitude);
 
                 const marker = L.marker([lat, lng], { icon: snowGlobeIcon })
                     .bindPopup(createPopupContent(sg))
@@ -314,10 +314,10 @@
         function createPopupContent(snowGlobe) {
             return `
                 <div class="popup-content">
-                    <h3>${snowGlobe.City || 'Unknown City'}</h3>
-                    <p><strong>Country:</strong> ${snowGlobe.Country || 'Unknown'}</p>
-                    <p><strong>Continent:</strong> ${snowGlobe.Continent || 'Unknown'}</p>
-                    ${snowGlobe.Photo ? `<img src="${snowGlobe.Photo}" class="popup-image" alt="${snowGlobe.City}">` : '<div class="popup-image">Photo coming soon</div>'}
+                    <h3>${snowGlobe.city || 'Unknown City'}</h3>
+                    <p><strong>Country:</strong> ${snowGlobe.country || 'Unknown'}</p>
+                    <p><strong>Continent:</strong> ${snowGlobe.continent || 'Unknown'}</p>
+                    ${snowGlobe.photo ? `<img src="${snowGlobe.photo}" class="popup-image" alt="${snowGlobe.city}">` : '<div class="popup-image">Photo coming soon</div>'}
                 </div>
             `;
         }
@@ -326,10 +326,10 @@
         function updateStats() {
             const filtered = currentContinent === 'all' 
                 ? snowGlobes 
-                : snowGlobes.filter(sg => sg.Continent === currentContinent);
+                : snowGlobes.filter(sg => sg.continent === currentContinent);
 
-            const countries = new Set(filtered.map(sg => sg.Country)).size;
-            const continents = new Set(snowGlobes.map(sg => sg.Continent)).size;
+            const countries = new Set(filtered.map(sg => sg.country)).size;
+            const continents = new Set(snowGlobes.map(sg => sg.continent)).size;
 
             document.getElementById('stats').textContent = 
                 `${filtered.length} snow globes ${currentContinent === 'all' ? `across ${countries} countries and ${continents} continents` : `in ${currentContinent}`}`;
