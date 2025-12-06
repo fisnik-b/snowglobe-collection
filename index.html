@@ -21,8 +21,14 @@
                 <span class="logo-text">Snow Globe Collection</span>
             </div>
             <div class="nav-right">
+                <button id="view-toggle" class="view-toggle" aria-label="Toggle view" style="display: none;">
+                    <span class="view-icon">🗺️</span>
+                </button>
                 <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-icon">☀️</span>
+                </button>
+                <button id="mobile-stats-toggle" class="mobile-stats-toggle" aria-label="Show stats">
+                    <span class="stats-icon">📊</span>
                 </button>
                 <div class="nav-quick-stats">
                     <div class="quick-stat">
@@ -42,12 +48,46 @@
         </div>
     </nav>
 
+    <!-- Mobile Bottom Sheet for Stats -->
+    <div id="mobile-bottom-sheet" class="mobile-bottom-sheet">
+        <div class="bottom-sheet-handle"></div>
+        <div class="bottom-sheet-content">
+            <h3 class="bottom-sheet-title">Collection Stats</h3>
+            <div class="mobile-stats-grid">
+                <div class="mobile-stat-item">
+                    <div class="mobile-stat-value" id="mobile-stat-total">0</div>
+                    <div class="mobile-stat-label">Total Snow Globes</div>
+                </div>
+                <div class="mobile-stat-item">
+                    <div class="mobile-stat-value" id="mobile-stat-countries">0</div>
+                    <div class="mobile-stat-label">Countries</div>
+                </div>
+                <div class="mobile-stat-item">
+                    <div class="mobile-stat-value" id="mobile-stat-continents">0</div>
+                    <div class="mobile-stat-label">Continents</div>
+                </div>
+            </div>
+            <div id="mobile-continent-stats"></div>
+        </div>
+    </div>
+    <div id="bottom-sheet-overlay" class="bottom-sheet-overlay"></div>
+
     <!-- Main Container -->
     <div class="container">
         <!-- Hero Section -->
         <div class="hero">
             <h1>Around the World in Glass</h1>
             <p class="hero-subtitle">A curated collection of memories from every corner of the globe</p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box glass">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search by country, city, or continent...">
+                    <button id="clear-search" class="clear-search" style="display: none;">✕</button>
+                </div>
+                <div id="search-results" class="search-results" style="display: none;"></div>
+            </div>
         </div>
 
         <!-- Main Stats Dashboard -->
@@ -76,9 +116,28 @@
             <button class="filter-btn active" data-continent="all">All Continents</button>
         </div>
 
+        <!-- View Toggle Controls -->
+        <div class="view-controls">
+            <button class="view-control-btn active" data-view="map">
+                <span class="view-control-icon">🗺️</span>
+                <span class="view-control-text">Map</span>
+            </button>
+            <button class="view-control-btn" data-view="grid">
+                <span class="view-control-icon">📸</span>
+                <span class="view-control-text">Grid</span>
+            </button>
+        </div>
+
         <!-- Map -->
-        <div class="map-card glass-strong">
-            <div id="map"></div>
+        <div id="map-view" class="view-section active">
+            <div class="map-card glass-strong">
+                <div id="map"></div>
+            </div>
+        </div>
+
+        <!-- Grid View -->
+        <div id="grid-view" class="view-section">
+            <div class="grid-container" id="grid-container"></div>
         </div>
 
         <!-- Country List -->
@@ -99,6 +158,9 @@
     <script src="js/config.js"></script>
     <script src="js/stats.js"></script>
     <script src="js/map.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/mobile.js"></script>
+    <script src="js/grid.js"></script>
     <script src="js/main.js"></script>
     <script src="js/theme.js"></script>
 </body>

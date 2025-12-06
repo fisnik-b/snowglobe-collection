@@ -49,6 +49,11 @@ async function loadSnowGlobes() {
                 displayMarkers(snowGlobes);
                 updateAllStats(snowGlobes);
                 updateCountryList(snowGlobes);
+                initSearch(snowGlobes);
+                initMobile(snowGlobes);
+                initGridView(snowGlobes);
+                initMobileViewToggle();
+                optimizeMapForMobile();
             },
             error: function(error) {
                 alert('Error loading collection: ' + error.message);

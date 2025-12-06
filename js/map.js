@@ -105,4 +105,9 @@ function filterByContinent(continent, snowGlobes) {
 
     displayMarkers(snowGlobes);
     updateCountryList(snowGlobes);
+
+    // Update grid view if it exists
+    if (typeof updateGridView === 'function') {
+        updateGridView(snowGlobes);
+    }
 }
