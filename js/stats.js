@@ -1,5 +1,21 @@
 // Statistics logic for Snow Globe Collection
 
+// Calculate statistics
+function calculateStats(snowGlobes) {
+    const byContinents = {};
+    snowGlobes.forEach(sg => {
+        const continent = sg.continent;
+        byContinents[continent] = (byContinents[continent] || 0) + 1;
+    });
+
+    return {
+        total: snowGlobes.length,
+        countries: new Set(snowGlobes.map(sg => sg.country)).size,
+        continents: new Set(snowGlobes.map(sg => sg.continent)).size,
+        byContinents: byContinents
+    };
+}
+
 // Setup continent cards
 function setupContinentCards(snowGlobes) {
     const continentCounts = {};
