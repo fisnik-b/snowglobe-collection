@@ -1,27 +1,30 @@
 // Grid view functionality for Snow Globe Collection
 
 let currentView = 'map';
+let gridSnowGlobes = [];
 
 // Initialize grid view
 function initGridView(snowGlobes) {
-    setupViewToggle(snowGlobes);
+    gridSnowGlobes = snowGlobes;
+    setupViewToggle();
     renderGrid(snowGlobes);
+    setupMobileViewToggle();
 }
 
 // Setup view toggle buttons
-function setupViewToggle(snowGlobes) {
+function setupViewToggle() {
     const viewButtons = document.querySelectorAll('.view-control-btn');
 
     viewButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const view = btn.dataset.view;
-            switchView(view, snowGlobes);
+            switchView(view);
         });
     });
 }
 
 // Switch between map and grid view
-function switchView(view, snowGlobes) {
+function switchView(view) {
     currentView = view;
 
     // Update buttons
@@ -50,11 +53,11 @@ function switchView(view, snowGlobes) {
 
     // Re-render grid if switching to grid view
     if (view === 'grid') {
-        renderGrid(snowGlobes);
+        renderGrid(gridSnowGlobes);
     }
 
     // Fix map rendering issue
-    if (view === 'map' && map) {
+    if (view === 'map' && typeof map !== 'undefined') {
         setTimeout(() => map.invalidateSize(), 100);
     }
 }
@@ -119,17 +122,19 @@ function renderGrid(snowGlobes) {
             const lng = parseFloat(item.dataset.lng);
 
             // Switch to map view and zoom to location
-            switchView('map', snowGlobes);
+            switchView('map');
             setTimeout(() => {
-                if (map) {
+                if (typeof map !== 'undefined') {
                     map.setView([lat, lng], 12);
                     // Find and open the corresponding marker
-                    const marker = markers.find(m => {
-                        const markerPos = m.getLatLng();
-                        return Math.abs(markerPos.lat - lat) < 0.0001 && Math.abs(markerPos.lng - lng) < 0.0001;
-                    });
-                    if (marker) {
-                        marker.openPopup();
+                    if (typeof markers !== 'undefined') {
+                        const marker = markers.find(m => {
+                            const markerPos = m.getLatLng();
+                            return Math.abs(markerPos.lat - lat) < 0.0001 && Math.abs(markerPos.lng - lng) < 0.0001;
+                        });
+                        if (marker) {
+                            marker.openPopup();
+                        }
                     }
                 }
             }, 500);
@@ -139,18 +144,21 @@ function renderGrid(snowGlobes) {
 
 // Update grid when continent filter changes
 function updateGridView(snowGlobes) {
+    if (snowGlobes) {
+        gridSnowGlobes = snowGlobes;
+    }
     if (currentView === 'grid') {
-        renderGrid(snowGlobes);
+        renderGrid(gridSnowGlobes);
     }
 }
 
 // Mobile view toggle
-function initMobileViewToggle() {
+function setupMobileViewToggle() {
     const navToggle = document.getElementById('view-toggle');
     if (navToggle) {
         navToggle.addEventListener('click', () => {
             const newView = currentView === 'map' ? 'grid' : 'map';
-            switchView(newView, snowGlobes);
+            switchView(newView);
         });
     }
 }

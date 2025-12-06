@@ -1,9 +1,11 @@
 // Search functionality for Snow Globe Collection
 
 let searchTimeout;
+let searchSnowGlobes = [];
 
 // Initialize search
 function initSearch(snowGlobes) {
+    searchSnowGlobes = snowGlobes;
     const searchInput = document.getElementById('search-input');
     const clearBtn = document.getElementById('clear-search');
     const searchResults = document.getElementById('search-results');
@@ -154,30 +156,41 @@ function handleSearchResultClick(item, results) {
 
     if (type === 'continent') {
         // Filter by continent
-        filterByContinent(result.data.continent, snowGlobes);
+        if (typeof filterByContinent !== 'undefined') {
+            filterByContinent(result.data.continent, searchSnowGlobes);
+        }
         // Scroll to filters
-        document.querySelector('.filters').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const filtersElement = document.querySelector('.filters');
+        if (filtersElement) {
+            filtersElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     } else if (type === 'country') {
         // Filter by continent and highlight country
-        filterByContinent(result.data.continent, snowGlobes);
+        if (typeof filterByContinent !== 'undefined') {
+            filterByContinent(result.data.continent, searchSnowGlobes);
+        }
         // Find and open marker for this country
-        const marker = markers.find(m => {
-            const popupContent = m.getPopup().getContent();
-            return popupContent.includes(result.data.country);
-        });
-        if (marker) {
-            map.setView(marker.getLatLng(), 8);
-            setTimeout(() => marker.openPopup(), 500);
+        if (typeof markers !== 'undefined' && typeof map !== 'undefined') {
+            const marker = markers.find(m => {
+                const popupContent = m.getPopup().getContent();
+                return popupContent.includes(result.data.country);
+            });
+            if (marker) {
+                map.setView(marker.getLatLng(), 8);
+                setTimeout(() => marker.openPopup(), 500);
+            }
         }
     } else if (type === 'city') {
         // Find and open marker for this city
-        const marker = markers.find(m => {
-            const popupContent = m.getPopup().getContent();
-            return popupContent.includes(result.data.city);
-        });
-        if (marker) {
-            map.setView(marker.getLatLng(), 12);
-            setTimeout(() => marker.openPopup(), 500);
+        if (typeof markers !== 'undefined' && typeof map !== 'undefined') {
+            const marker = markers.find(m => {
+                const popupContent = m.getPopup().getContent();
+                return popupContent.includes(result.data.city);
+            });
+            if (marker) {
+                map.setView(marker.getLatLng(), 12);
+                setTimeout(() => marker.openPopup(), 500);
+            }
         }
     }
 }

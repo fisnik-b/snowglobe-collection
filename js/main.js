@@ -52,7 +52,6 @@ async function loadSnowGlobes() {
                 initSearch(snowGlobes);
                 initMobile(snowGlobes);
                 initGridView(snowGlobes);
-                initMobileViewToggle();
                 optimizeMapForMobile();
             },
             error: function(error) {
