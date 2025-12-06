@@ -90,17 +90,44 @@
             </div>
         </div>
 
-        <!-- Main Stats Dashboard -->
+        <!-- Enhanced Stats Dashboard -->
         <div class="stats-dashboard">
             <div class="stat-card glass">
+                <div class="stat-card-icon">❄️</div>
                 <div class="stat-card-value" id="stat-total">0</div>
                 <div class="stat-card-label">Total Snow Globes</div>
                 <div class="stat-card-sublabel">In collection</div>
             </div>
             <div class="stat-card glass">
+                <div class="stat-card-icon">🌍</div>
                 <div class="stat-card-value" id="stat-countries">0</div>
                 <div class="stat-card-label">Countries</div>
                 <div class="stat-card-sublabel">Across the world</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-card-icon">🏆</div>
+                <div class="stat-card-value" id="stat-dominant-continent">-</div>
+                <div class="stat-card-label">Top Continent</div>
+                <div class="stat-card-sublabel" id="stat-dominant-percentage">-</div>
+            </div>
+            <div class="stat-card glass top-countries-card">
+                <div class="stat-card-icon">🥇</div>
+                <div class="stat-card-label">Top Countries</div>
+                <div class="top-countries-list" id="top-countries-list">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-card-icon">✨</div>
+                <div class="stat-card-value-small" id="stat-latest">-</div>
+                <div class="stat-card-label">Latest Addition</div>
+                <div class="stat-card-sublabel" id="stat-latest-country">-</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-card-icon">🌐</div>
+                <div class="stat-card-value" id="stat-distance">0</div>
+                <div class="stat-card-label">Total Distance</div>
+                <div class="stat-card-sublabel">Between all locations</div>
             </div>
         </div>
 
@@ -140,14 +167,6 @@
             <div class="grid-container" id="grid-container"></div>
         </div>
 
-        <!-- Country List -->
-        <div class="country-list glass" id="country-list-container" style="display: none;">
-            <div class="country-list-header">
-                <h2 class="country-list-title">Countries in Collection</h2>
-                <span class="country-list-count" id="country-list-count"></span>
-            </div>
-            <div class="country-grid" id="country-list"></div>
-        </div>
     </div>
 
     <!-- External Libraries -->
