@@ -5,19 +5,25 @@ let gridSnowGlobes = [];
 
 // Initialize grid view
 function initGridView(snowGlobes) {
+    console.log('initGridView called with', snowGlobes ? snowGlobes.length : 0, 'snow globes');
     gridSnowGlobes = snowGlobes;
     setupViewToggle();
     renderGrid(snowGlobes);
     setupMobileViewToggle();
+    console.log('initGridView completed');
 }
 
 // Setup view toggle buttons
 function setupViewToggle() {
+    console.log('setupViewToggle called');
     const viewButtons = document.querySelectorAll('.view-control-btn');
+    console.log('Found view buttons:', viewButtons.length);
 
     viewButtons.forEach(btn => {
+        console.log('Adding click listener to button:', btn.dataset.view);
         btn.addEventListener('click', () => {
             const view = btn.dataset.view;
+            console.log('View button clicked:', view);
             switchView(view);
         });
     });
@@ -25,21 +31,30 @@ function setupViewToggle() {
 
 // Switch between map and grid view
 function switchView(view) {
+    console.log('switchView called with:', view);
     currentView = view;
 
     // Update buttons
-    document.querySelectorAll('.view-control-btn').forEach(btn => {
+    const buttons = document.querySelectorAll('.view-control-btn');
+    console.log('Updating buttons, found:', buttons.length);
+    buttons.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.view === view);
     });
 
     // Update views
-    document.querySelectorAll('.view-section').forEach(section => {
+    const sections = document.querySelectorAll('.view-section');
+    console.log('Updating sections, found:', sections.length);
+    sections.forEach(section => {
         section.classList.remove('active');
     });
 
     const targetView = document.getElementById(`${view}-view`);
+    console.log('Target view element:', targetView);
     if (targetView) {
         targetView.classList.add('active');
+        console.log('Activated view:', view);
+    } else {
+        console.error('Target view not found for:', view);
     }
 
     // Update navbar toggle icon for mobile
@@ -53,11 +68,13 @@ function switchView(view) {
 
     // Re-render grid if switching to grid view
     if (view === 'grid') {
+        console.log('Rendering grid view');
         renderGrid(gridSnowGlobes);
     }
 
     // Fix map rendering issue
     if (view === 'map' && typeof map !== 'undefined') {
+        console.log('Invalidating map size');
         setTimeout(() => map.invalidateSize(), 100);
     }
 }

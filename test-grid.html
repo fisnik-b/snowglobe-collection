@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Grid Toggle</title>
+    <style>
+        .view-control-btn { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .view-control-btn.active { background: blue; color: white; }
+        .view-section { display: none; padding: 20px; border: 1px solid #ccc; margin: 10px; }
+        .view-section.active { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Test View Toggle</h1>
+
+    <div class="view-controls">
+        <button class="view-control-btn active" data-view="map">
+            Map View
+        </button>
+        <button class="view-control-btn" data-view="grid">
+            Grid View
+        </button>
+    </div>
+
+    <div id="map-view" class="view-section active">
+        <h2>MAP VIEW</h2>
+        <p>This is the map view</p>
+    </div>
+
+    <div id="grid-view" class="view-section">
+        <h2>GRID VIEW</h2>
+        <p>This is the grid view</p>
+    </div>
+
+    <script>
+        console.log('Script loaded');
+
+        let currentView = 'map';
+
+        function setupViewToggle() {
+            console.log('Setting up view toggle');
+            const viewButtons = document.querySelectorAll('.view-control-btn');
+            console.log('Found buttons:', viewButtons.length);
+
+            viewButtons.forEach(btn => {
+                console.log('Adding listener to button:', btn.dataset.view);
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+                    console.log('Button clicked, view:', view);
+                    switchView(view);
+                });
+            });
+        }
+
+        function switchView(view) {
+            console.log('Switching to view:', view);
+            currentView = view;
+
+            // Update buttons
+            document.querySelectorAll('.view-control-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            // Update views
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const targetView = document.getElementById(`${view}-view`);
+            if (targetView) {
+                targetView.classList.add('active');
+                console.log('View switched to:', view);
+            } else {
+                console.error('Target view not found:', view);
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded');
+            setupViewToggle();
+        });
+    </script>
+</body>
+</html>
