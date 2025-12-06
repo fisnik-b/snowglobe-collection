@@ -48,7 +48,6 @@ async function loadSnowGlobes() {
                 setupContinentCards(snowGlobes);
                 displayMarkers(snowGlobes);
                 updateAllStats(snowGlobes);
-                updateCountryList(snowGlobes);
                 initSearch(snowGlobes);
                 initMobile(snowGlobes);
                 initGridView(snowGlobes);
