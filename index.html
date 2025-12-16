@@ -18,17 +18,11 @@
         <div class="nav-content">
             <div class="logo">
                 <span class="logo-icon">❄️</span>
-                <span class="logo-text">Snow Globe Collection</span>
+                <span class="logo-text">Snow Globe</span>
             </div>
             <div class="nav-right">
-                <button id="view-toggle" class="view-toggle" aria-label="Toggle view" style="display: none;">
-                    <span class="view-icon">🗺️</span>
-                </button>
                 <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-icon">☀️</span>
-                </button>
-                <button id="mobile-stats-toggle" class="mobile-stats-toggle" aria-label="Show stats">
-                    <span class="stats-icon">📊</span>
                 </button>
                 <div class="nav-quick-stats">
                     <div class="quick-stat">
@@ -168,6 +162,22 @@
         </div>
 
     </div>
+
+    <!-- Bottom Navigation Bar (Mobile) -->
+    <nav class="bottom-nav">
+        <button class="bottom-nav-item active" data-view="map" aria-label="Map view">
+            <span class="bottom-nav-icon">🗺️</span>
+            <span class="bottom-nav-label">Map</span>
+        </button>
+        <button class="bottom-nav-item" data-view="stats" aria-label="Statistics">
+            <span class="bottom-nav-icon">📊</span>
+            <span class="bottom-nav-label">Stats</span>
+        </button>
+        <button class="bottom-nav-item" data-view="grid" aria-label="Grid view">
+            <span class="bottom-nav-icon">📸</span>
+            <span class="bottom-nav-label">Grid</span>
+        </button>
+    </nav>
 
     <!-- External Libraries -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

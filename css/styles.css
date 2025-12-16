@@ -1130,10 +1130,118 @@ body {
     font-size: 0.75rem;
 }
 
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: none;
+    background: var(--navbar-bg);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-top: 1px solid var(--navbar-border);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav.hidden {
+    transform: translateY(100%);
+}
+
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    color: var(--text-secondary);
+    -webkit-tap-highlight-color: transparent;
+    min-height: 56px;
+}
+
+.bottom-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 80%;
+    height: 80%;
+    background: rgba(14, 165, 233, 0.1);
+    border-radius: 16px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bottom-nav-item:active::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.bottom-nav-item.active::before {
+    transform: translate(-50%, -50%) scale(1);
+    background: rgba(14, 165, 233, 0.15);
+}
+
+.bottom-nav-icon {
+    font-size: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    filter: grayscale(100%);
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+    transform: scale(1.1);
+    filter: grayscale(0%) drop-shadow(0 2px 8px rgba(14, 165, 233, 0.4));
+}
+
+.bottom-nav-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.7;
+}
+
+.bottom-nav-item.active .bottom-nav-label {
+    opacity: 1;
+    color: var(--accent-primary);
+    font-weight: 700;
+}
+
+/* Show bottom nav on mobile */
+@media (max-width: 768px) {
+    .bottom-nav {
+        display: flex;
+    }
+
+    /* Add padding to body to prevent content hiding behind bottom nav */
+    body {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom));
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {
-        padding: 30px 20px;
+        padding: 20px 20px 30px;
+    }
+
+    /* Adjust hero for mobile with bottom nav */
+    .hero {
+        margin-bottom: 30px;
     }
 
     .hero h1 {
@@ -1245,17 +1353,19 @@ body {
         font-size: 1.5rem;
     }
 
-    .theme-toggle,
-    .view-toggle,
-    .mobile-stats-toggle {
-        width: 44px;
-        height: 44px;
+    .theme-toggle {
+        width: 48px;
+        height: 48px;
     }
 
-    .theme-icon,
-    .view-icon,
-    .stats-icon {
-        font-size: 1.3rem;
+    .theme-icon {
+        font-size: 1.4rem;
+    }
+
+    /* Hide mobile stats toggle - replaced by bottom nav */
+    .mobile-stats-toggle,
+    .view-toggle {
+        display: none !important;
     }
 
     .filters {
@@ -1283,17 +1393,9 @@ body {
         padding: 25px 20px;
     }
 
+    /* Hide view controls on mobile - replaced by bottom nav */
     .view-controls {
-        gap: 10px;
-    }
-
-    .view-control-btn {
-        padding: 12px 24px;
-        font-size: 0.9rem;
-    }
-
-    .view-control-icon {
-        font-size: 1.2rem;
+        display: none !important;
     }
 
     .grid-container {

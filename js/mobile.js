@@ -5,6 +5,7 @@ function initMobile(snowGlobes) {
     setupBottomSheet();
     setupMobileStats(snowGlobes);
     setupTouchGestures();
+    setupBottomNavigation();
 }
 
 // Setup bottom sheet for mobile stats
@@ -167,6 +168,138 @@ function optimizeMapForMobile() {
             }
         });
     }
+}
+
+// Setup bottom navigation bar
+function setupBottomNavigation() {
+    const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+    const statsSection = document.querySelector('.stats-dashboard');
+    const continentSection = document.querySelector('.continent-stats');
+    const filtersSection = document.querySelector('.filters');
+    const viewControls = document.querySelector('.view-controls');
+    const mapView = document.getElementById('map-view');
+    const gridView = document.getElementById('grid-view');
+    const heroSection = document.querySelector('.hero');
+
+    if (!bottomNavItems.length) return;
+
+    // Function to switch views
+    function switchView(view) {
+        // Update active state on bottom nav
+        bottomNavItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.view === view) {
+                item.classList.add('active');
+            }
+        });
+
+        // Only apply view switching logic on mobile
+        if (window.innerWidth > 768) return;
+
+        // Hide/show sections based on view
+        switch(view) {
+            case 'map':
+                // Show map, hide stats and grid
+                if (statsSection) statsSection.style.display = 'none';
+                if (continentSection) continentSection.style.display = 'none';
+                if (mapView) mapView.style.display = 'block';
+                if (gridView) gridView.style.display = 'none';
+                if (filtersSection) filtersSection.style.display = 'flex';
+                if (viewControls) viewControls.style.display = 'none';
+                if (heroSection) heroSection.style.display = 'block';
+                break;
+
+            case 'stats':
+                // Show stats, hide map and grid
+                if (statsSection) statsSection.style.display = 'grid';
+                if (continentSection) continentSection.style.display = 'block';
+                if (mapView) mapView.style.display = 'none';
+                if (gridView) gridView.style.display = 'none';
+                if (filtersSection) filtersSection.style.display = 'none';
+                if (viewControls) viewControls.style.display = 'none';
+                if (heroSection) heroSection.style.display = 'none';
+                // Scroll to stats
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                break;
+
+            case 'grid':
+                // Show grid, hide stats and map
+                if (statsSection) statsSection.style.display = 'none';
+                if (continentSection) continentSection.style.display = 'none';
+                if (mapView) mapView.style.display = 'none';
+                if (gridView) gridView.style.display = 'block';
+                if (filtersSection) filtersSection.style.display = 'flex';
+                if (viewControls) viewControls.style.display = 'none';
+                if (heroSection) heroSection.style.display = 'block';
+                break;
+        }
+    }
+
+    // Add click listeners to bottom nav items
+    bottomNavItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const view = item.dataset.view;
+            switchView(view);
+
+            // Add haptic feedback if available
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        });
+    });
+
+    // Initialize with map view
+    if (window.innerWidth <= 768) {
+        switchView('map');
+    }
+
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (window.innerWidth > 768) {
+                // Reset to desktop view
+                if (statsSection) statsSection.style.display = '';
+                if (continentSection) continentSection.style.display = '';
+                if (mapView) mapView.style.display = '';
+                if (gridView) gridView.style.display = '';
+                if (filtersSection) filtersSection.style.display = '';
+                if (viewControls) viewControls.style.display = '';
+                if (heroSection) heroSection.style.display = '';
+            } else {
+                // Re-apply mobile view
+                const activeItem = document.querySelector('.bottom-nav-item.active');
+                if (activeItem) {
+                    switchView(activeItem.dataset.view);
+                }
+            }
+        }, 250);
+    });
+
+    // Hide bottom nav on scroll down, show on scroll up
+    let lastScrollTop = 0;
+    let scrollTimeout;
+    const bottomNav = document.querySelector('.bottom-nav');
+
+    window.addEventListener('scroll', () => {
+        if (window.innerWidth > 768) return;
+
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // Scrolling down
+                bottomNav.classList.add('hidden');
+            } else {
+                // Scrolling up
+                bottomNav.classList.remove('hidden');
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        }, 100);
+    }, { passive: true });
 }
 
 // Call on resize
