@@ -267,8 +267,8 @@ body {
 }
 
 body.dark-mode .search-box {
-    background: rgba(51, 65, 85, 0.95) !important;
-    border: 2px solid rgba(14, 165, 233, 0.6);
+    background: rgba(71, 85, 105, 0.85) !important;
+    border: 2px solid var(--accent-primary);
 }
 
 .search-box:focus-within {
