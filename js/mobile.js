@@ -218,8 +218,6 @@ function setupBottomNavigation() {
                 if (filtersSection) filtersSection.style.display = 'none';
                 if (viewControls) viewControls.style.display = 'none';
                 if (heroSection) heroSection.style.display = 'none';
-                // Scroll to stats
-                window.scrollTo({ top: 0, behavior: 'smooth' });
                 break;
 
             case 'grid':
@@ -276,30 +274,6 @@ function setupBottomNavigation() {
             }
         }, 250);
     });
-
-    // Hide bottom nav on scroll down, show on scroll up
-    let lastScrollTop = 0;
-    let scrollTimeout;
-    const bottomNav = document.querySelector('.bottom-nav');
-
-    window.addEventListener('scroll', () => {
-        if (window.innerWidth > 768) return;
-
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                // Scrolling down
-                bottomNav.classList.add('hidden');
-            } else {
-                // Scrolling up
-                bottomNav.classList.remove('hidden');
-            }
-
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        }, 100);
-    }, { passive: true });
 }
 
 // Call on resize

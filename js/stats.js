@@ -112,7 +112,7 @@ function updateAllStats(snowGlobes) {
         document.getElementById('stat-dominant-percentage').textContent = `${percentage}% of collection`;
     }
 
-    // Top 3 Countries
+    // Top 5 Countries
     const countryCounts = {};
     snowGlobes.forEach(sg => {
         countryCounts[sg.country] = (countryCounts[sg.country] || 0) + 1;
@@ -120,7 +120,7 @@ function updateAllStats(snowGlobes) {
 
     const topCountries = Object.entries(countryCounts)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
+        .slice(0, 5);
 
     const topCountriesList = document.getElementById('top-countries-list');
     topCountriesList.innerHTML = '';
@@ -130,7 +130,8 @@ function updateAllStats(snowGlobes) {
     topCountries.forEach(([country, count], index) => {
         const flag = COUNTRY_FLAGS[country] || '🌍';
         const percentage = (count / maxCount) * 100;
-        const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉';
+        const rankEmojis = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+        const rankEmoji = rankEmojis[index] || (index + 1).toString();
 
         const item = document.createElement('div');
         item.className = 'top-country-item';
