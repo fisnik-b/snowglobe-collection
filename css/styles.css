@@ -722,17 +722,6 @@ body.dark-mode .search-box:focus-within {
     transform: scale(1.05);
 }
 
-.filter-btn.active::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: currentColor;
-    border-radius: 16px 16px 0 0;
-}
-
 /* Map Card */
 .map-card {
     border-radius: 24px;
