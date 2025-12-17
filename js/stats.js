@@ -95,23 +95,6 @@ function updateAllStats(snowGlobes) {
     document.getElementById('nav-countries').textContent = totalCountries;
     document.getElementById('nav-continents').textContent = totalContinents;
 
-    // Dominant Continent
-    const continentCounts = {};
-    snowGlobes.forEach(sg => {
-        const continent = sg.continent;
-        continentCounts[continent] = (continentCounts[continent] || 0) + 1;
-    });
-
-    const dominantContinent = Object.entries(continentCounts)
-        .sort((a, b) => b[1] - a[1])[0];
-
-    if (dominantContinent) {
-        const [continent, count] = dominantContinent;
-        const percentage = ((count / snowGlobes.length) * 100).toFixed(0);
-        document.getElementById('stat-dominant-continent').textContent = continent;
-        document.getElementById('stat-dominant-percentage').textContent = `${percentage}% of collection`;
-    }
-
     // Top 5 Countries
     const countryCounts = {};
     snowGlobes.forEach(sg => {
@@ -148,16 +131,5 @@ function updateAllStats(snowGlobes) {
         `;
         topCountriesList.appendChild(item);
     });
-
-    // Latest Addition (assuming the last entry is the most recent)
-    if (snowGlobes.length > 0) {
-        const latest = snowGlobes[snowGlobes.length - 1];
-        document.getElementById('stat-latest').textContent = latest.city || latest.country;
-        document.getElementById('stat-latest-country').textContent = latest.country;
-    }
-
-    // Total Distance
-    const totalDistance = calculateTotalDistance(snowGlobes);
-    document.getElementById('stat-distance').textContent = formatNumber(totalDistance) + ' km';
 }
 
