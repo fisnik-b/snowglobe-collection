@@ -81,7 +81,7 @@ body.ready .loader { opacity: 0; visibility: hidden; }
 
 /* ---------- Top bar ---------- */
 .top {
-  position: fixed; z-index: 10; left: 0; right: 0; top: 0;
+  position: fixed; z-index: 25; left: 0; right: 0; top: 0;
   padding: calc(14px + var(--safe-top)) 16px 0;
   display: flex; flex-direction: column; gap: 12px;
   pointer-events: none;
@@ -108,7 +108,7 @@ body.ready .loader { opacity: 0; visibility: hidden; }
 .icon-btn:active { transform: scale(.92); }
 
 /* Search */
-.search { position: relative; display: flex; align-items: center; height: 48px; border-radius: 16px; padding: 0 8px 0 14px; }
+.search { position: relative; z-index: 5; display: flex; align-items: center; height: 48px; border-radius: 16px; padding: 0 8px 0 14px; }
 .search-icon { color: var(--muted); flex: none; }
 .search input {
   flex: 1; min-width: 0; height: 100%; padding: 0 10px;
@@ -281,7 +281,9 @@ body.detail-open .drawer { transform: translateY(100%); }
 
 
 /* Hide top bar while a snow globe is open on phones */
+body[data-drawer="full"] .top,
 body.detail-open .top { opacity: 0; transform: translateY(-12px); pointer-events: none; }
+body[data-drawer="full"] .top > *,
 body.detail-open .top > * { pointer-events: none; }
 
 /* ---------- Toast ---------- */
@@ -308,7 +310,9 @@ body.detail-open .top > * { pointer-events: none; }
   .drawer-head { padding-top: 16px; }
   .drawer-summary { cursor: default; }
   body.detail-open .drawer { transform: none !important; }
+  body[data-drawer="full"] .top,
   body.detail-open .top { opacity: 1; transform: none; }
+  body[data-drawer="full"] .top > *,
   body.detail-open .top > * { pointer-events: auto; }
 
   .detail {

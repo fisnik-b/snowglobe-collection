@@ -59,7 +59,8 @@
     detail.classList.add('open');
     detail.setAttribute('aria-hidden', 'false');
     document.body.classList.add('detail-open');
-    if (!wasOpen) $('#detail-close').focus({ preventScroll: true });
+    // keyboard users land on the close button; no focus ring on touch screens
+    if (!wasOpen && window.matchMedia('(hover: hover)').matches) $('#detail-close').focus({ preventScroll: true });
 
     const sheetH = UI.isDesktop() ? 0 : detail.offsetHeight;
     Globe.select(g, { fly, bottomPad: sheetH });

@@ -126,6 +126,7 @@ const UI = (() => {
     const drawer = $('#drawer');
     const handle = $('#drawer-handle');
     const states = ['peek', 'half', 'full'];
+    document.body.dataset.drawer = drawer.dataset.state;
     let startY = 0, startOffset = 0, dragging = false, moved = false;
 
     const visible = (state) => {
@@ -136,6 +137,7 @@ const UI = (() => {
 
     function set(state) {
       drawer.dataset.state = state;
+      document.body.dataset.drawer = state;
       drawer.style.transform = '';
     }
 
@@ -250,6 +252,7 @@ const UI = (() => {
         active = (active + (e.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length;
         list.querySelectorAll('li[data-id]').forEach((li, i) => { li.classList.toggle('active', i === active); li.setAttribute('aria-selected', i === active); });
       } else if (e.key === 'Enter' && results[active]) {
+        e.preventDefault(); // otherwise Enter also "clicks" the newly focused close button
         pick(results[active].id);
       } else if (e.key === 'Escape') {
         input.value = ''; render(); input.blur();
@@ -339,9 +342,10 @@ const UI = (() => {
             <stop offset="1" stop-color="#ffffff" stop-opacity=".14"/>
           </radialGradient>
         </defs>
-        <circle cx="60" cy="58" r="46" fill="url(#glass)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/>
         <path d="M22 96 h76 l8 26 H14z" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
-        <path d="M30 92 q30 -14 60 0" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.2"/>
+        <circle cx="60" cy="58" r="46" fill="#162342"/>
+        <circle cx="60" cy="58" r="46" fill="url(#glass)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/>
+        <ellipse cx="60" cy="96" rx="30" ry="5" fill="rgba(255,255,255,.18)"/>
       </svg>
       <span class="hero-flag">${g.flag}</span>
       <span class="hero-note">Photo coming soon</span>`;

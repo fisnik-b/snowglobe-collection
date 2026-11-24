@@ -13,8 +13,8 @@ const CONFIG = {
   // Free vector base map (no API key). Re-coloured to dark in globe.js.
   baseStyle: 'https://tiles.openfreemap.org/styles/positron',
 
-  // Reference point for "farthest snow globe" (Bern, Switzerland).
-  home: { name: 'Switzerland', lat: 46.948, lng: 7.4474 },
+  // Reference point for distances and the "farthest snow globe" record.
+  home: { name: 'Bern', lat: 46.948, lng: 7.4474 },
 
   // Collection started in…
   since: 2014,
