@@ -58,7 +58,9 @@ const Globe = (() => {
         if (hidden.test(id)) {
           l.layout.visibility = 'none';
         } else {
-          if (Array.isArray(l.layout['text-font'])) fontStack = l.layout['text-font'];
+          // reuse the base map's font for our labels (plain list of font names only)
+          const f = l.layout['text-font'];
+          if (Array.isArray(f) && f.length && f.every(x => typeof x === 'string' && x.includes(' '))) fontStack = f;
           const strong = id.includes('country') || id.includes('continent');
           l.paint['text-color'] = strong ? C.label : C.labelSoft;
           l.paint['text-halo-color'] = C.halo;
