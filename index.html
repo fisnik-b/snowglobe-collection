@@ -1,209 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snow Globe Collection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Snow Globe Atlas</title>
+  <meta name="description" content="A collection of snow globes from cities around the world, on an interactive 3D globe.">
+  <meta name="theme-color" content="#070b16">
+  <meta name="color-scheme" content="dark">
 
-    <!-- External Libraries -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Home screen / app icon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Snow Globes">
 
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="css/styles.css">
+  <!-- Link previews (WhatsApp, iMessage…) -->
+  <meta property="og:title" content="Snow Globe Atlas">
+  <meta property="og:description" content="A collection of snow globes from cities around the world.">
+  <meta property="og:image" content="assets/icon-512.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-content">
-            <div class="logo">
-                <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Base -->
-                    <rect x="10" y="32" width="20" height="4" rx="2" fill="url(#base-gradient)"/>
-                    <!-- Glass sphere -->
-                    <circle cx="20" cy="18" r="13" fill="url(#sphere-gradient)" opacity="0.9"/>
-                    <circle cx="20" cy="18" r="13" stroke="url(#stroke-gradient)" stroke-width="1.5" fill="none"/>
-                    <!-- Inner content - winter tree -->
-                    <path d="M20 10 L20 23 M16 17 L20 13 L24 17 M15 21 L20 16 L25 21" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
-                    <!-- Snowflakes -->
-                    <circle cx="15" cy="14" r="1" fill="white" opacity="0.9"/>
-                    <circle cx="25" cy="16" r="1" fill="white" opacity="0.9"/>
-                    <circle cx="17" cy="24" r="1" fill="white" opacity="0.8"/>
-                    <circle cx="23" cy="22" r="1" fill="white" opacity="0.8"/>
-                    <!-- Shine effect -->
-                    <circle cx="16" cy="12" r="3" fill="white" opacity="0.4"/>
-                    <circle cx="14" cy="10" r="1.5" fill="white" opacity="0.6"/>
-                    <!-- Gradients -->
-                    <defs>
-                        <linearGradient id="sphere-gradient" x1="20" y1="5" x2="20" y2="31">
-                            <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.6"/>
-                            <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.4"/>
-                        </linearGradient>
-                        <linearGradient id="stroke-gradient" x1="20" y1="5" x2="20" y2="31">
-                            <stop offset="0%" stop-color="#0ea5e9"/>
-                            <stop offset="100%" stop-color="#2563eb"/>
-                        </linearGradient>
-                        <linearGradient id="base-gradient" x1="20" y1="32" x2="20" y2="36">
-                            <stop offset="0%" stop-color="#0ea5e9"/>
-                            <stop offset="100%" stop-color="#2563eb"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
-                <span class="logo-text">Snow Globe</span>
-            </div>
-            <div class="nav-right">
-                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-                    <span class="theme-icon">☀️</span>
-                </button>
-                <div class="nav-quick-stats">
-                    <div class="quick-stat">
-                        <div class="quick-stat-value" id="nav-total">0</div>
-                        <div class="quick-stat-label">Total</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value" id="nav-countries">0</div>
-                        <div class="quick-stat-label">Countries</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value" id="nav-continents">0</div>
-                        <div class="quick-stat-label">Continents</div>
-                    </div>
-                </div>
-            </div>
+
+  <!-- Map (full screen) -->
+  <div id="map" aria-label="Interactive globe of the snow globe collection"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- Loading screen -->
+  <div id="loader" class="loader" role="status">
+    <div class="loader-globe" aria-hidden="true"><span>❄</span></div>
+    <p>Shaking the snow globes…</p>
+  </div>
+
+  <!-- Top: brand, search, continent filters -->
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">❄</span>
+        <div>
+          <h1>Snow Globe Atlas</h1>
+          <p id="brand-sub" class="brand-sub">&nbsp;</p>
         </div>
-    </nav>
-
-    <!-- Mobile Bottom Sheet for Stats -->
-    <div id="mobile-bottom-sheet" class="mobile-bottom-sheet">
-        <div class="bottom-sheet-handle"></div>
-        <div class="bottom-sheet-content">
-            <h3 class="bottom-sheet-title">Collection Stats</h3>
-            <div class="mobile-stats-grid">
-                <div class="mobile-stat-item">
-                    <div class="mobile-stat-value" id="mobile-stat-total">0</div>
-                    <div class="mobile-stat-label">Total Snow Globes</div>
-                </div>
-                <div class="mobile-stat-item">
-                    <div class="mobile-stat-value" id="mobile-stat-countries">0</div>
-                    <div class="mobile-stat-label">Countries</div>
-                </div>
-                <div class="mobile-stat-item">
-                    <div class="mobile-stat-value" id="mobile-stat-continents">0</div>
-                    <div class="mobile-stat-label">Continents</div>
-                </div>
-            </div>
-            <div id="mobile-continent-stats"></div>
-        </div>
-    </div>
-    <div id="bottom-sheet-overlay" class="bottom-sheet-overlay"></div>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Hero Section -->
-        <div class="hero">
-            <h1>Snow Globe Collection</h1>
-            <p class="hero-subtitle">Snow globes collected from major cities worldwide since 2014</p>
-
-            <!-- Search Bar -->
-            <div class="search-container">
-                <div class="search-box glass">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search by country, city, or continent...">
-                    <button id="clear-search" class="clear-search" style="display: none;">✕</button>
-                </div>
-                <div id="search-results" class="search-results" style="display: none;"></div>
-            </div>
-        </div>
-
-        <!-- Enhanced Stats Dashboard -->
-        <div class="stats-dashboard">
-            <div class="stat-card glass">
-                <div class="stat-card-icon">❄️</div>
-                <div class="stat-card-value" id="stat-total">0</div>
-                <div class="stat-card-label">Total Snow Globes</div>
-                <div class="stat-card-sublabel">In collection</div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-card-icon">🌍</div>
-                <div class="stat-card-value" id="stat-countries">0</div>
-                <div class="stat-card-label">Countries</div>
-                <div class="stat-card-sublabel">Across the world</div>
-            </div>
-            <div class="stat-card glass top-countries-card">
-                <div class="stat-card-icon">🥇</div>
-                <div class="stat-card-label">Top Countries</div>
-                <div class="top-countries-list" id="top-countries-list">
-                    <div class="loading">Loading...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Continent Stats -->
-        <div class="continent-stats">
-            <h2 class="continent-stats-title">Collection by Continent</h2>
-            <div class="continent-grid" id="continent-stats"></div>
-        </div>
-
-        <!-- Filters -->
-        <div class="filters glass">
-            <span class="filter-label">View:</span>
-            <button class="filter-btn active" data-continent="all">All Continents</button>
-        </div>
-
-        <!-- View Toggle Controls -->
-        <div class="view-controls">
-            <button class="view-control-btn active" data-view="map">
-                <span class="view-control-icon">🗺️</span>
-                <span class="view-control-text">Map</span>
-            </button>
-            <button class="view-control-btn" data-view="grid">
-                <span class="view-control-icon">📸</span>
-                <span class="view-control-text">Grid</span>
-            </button>
-        </div>
-
-        <!-- Map -->
-        <div id="map-view" class="view-section active">
-            <div class="map-card glass-strong">
-                <div id="map"></div>
-            </div>
-        </div>
-
-        <!-- Grid View -->
-        <div id="grid-view" class="view-section">
-            <div class="grid-container" id="grid-container"></div>
-        </div>
-
+      </div>
+      <button id="reset-view" class="icon-btn glass" type="button" aria-label="Back to the whole globe" title="Whole globe">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>
+      </button>
     </div>
 
-    <!-- Bottom Navigation Bar (Mobile) -->
-    <nav class="bottom-nav">
-        <button class="bottom-nav-item active" data-view="map" aria-label="Map view">
-            <span class="bottom-nav-icon">🗺️</span>
-            <span class="bottom-nav-label">Map</span>
-        </button>
-        <button class="bottom-nav-item" data-view="grid" aria-label="Grid view">
-            <span class="bottom-nav-icon">📸</span>
-            <span class="bottom-nav-label">Grid</span>
-        </button>
-        <button class="bottom-nav-item" data-view="stats" aria-label="Statistics">
-            <span class="bottom-nav-icon">📊</span>
-            <span class="bottom-nav-label">Stats</span>
-        </button>
-    </nav>
+    <div class="search glass">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Search a city or country" autocomplete="off" spellcheck="false" aria-label="Search a city or country">
+      <button id="search-clear" class="search-clear" type="button" aria-label="Clear search" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <ul id="search-results" class="search-results" role="listbox" hidden></ul>
+    </div>
 
-    <!-- External Libraries -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <nav id="chips" class="chips" aria-label="Filter by continent"></nav>
+  </header>
 
-    <!-- Custom Scripts -->
-    <script src="js/config.js"></script>
-    <script src="js/stats.js"></script>
-    <script src="js/map.js"></script>
-    <script src="js/search.js"></script>
-    <script src="js/mobile.js"></script>
-    <script src="js/grid.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/theme.js"></script>
+  <!-- Drawer: collection + stats -->
+  <section id="drawer" class="drawer glass" data-state="peek" aria-label="Collection">
+    <div class="drawer-handle" id="drawer-handle" role="button" tabindex="0" aria-label="Expand or collapse the panel">
+      <span class="grip" aria-hidden="true"></span>
+    </div>
+    <div class="drawer-head">
+      <div id="drawer-summary" class="drawer-summary"></div>
+      <div class="tabs" role="tablist">
+        <button class="tab active" role="tab" data-tab="collection" aria-selected="true">Collection</button>
+        <button class="tab" role="tab" data-tab="stats" aria-selected="false">Stats</button>
+      </div>
+    </div>
+    <div class="drawer-body" id="drawer-body">
+      <div id="panel-collection" class="panel" role="tabpanel">
+        <div class="sortbar" role="group" aria-label="Sort">
+          <button class="sort active" data-sort="newest">Newest</button>
+          <button class="sort" data-sort="city">A–Z</button>
+          <button class="sort" data-sort="country">By country</button>
+        </div>
+        <div id="grid" class="grid"></div>
+      </div>
+      <div id="panel-stats" class="panel" role="tabpanel" hidden></div>
+    </div>
+  </section>
+
+  <!-- Detail sheet for one snow globe -->
+  <article id="detail" class="detail glass" aria-hidden="true" aria-live="polite">
+    <div class="detail-hero" id="detail-hero">
+      <canvas id="snow" class="snow" aria-hidden="true"></canvas>
+      <button id="detail-close" class="icon-btn detail-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-title">
+        <div>
+          <h2 id="detail-city"></h2>
+          <p id="detail-country" class="detail-country"></p>
+        </div>
+        <span id="detail-flag" class="detail-flag" aria-hidden="true"></span>
+      </div>
+      <div id="detail-meta" class="detail-meta"></div>
+      <p id="detail-notes" class="detail-notes" hidden></p>
+      <div class="detail-actions">
+        <button id="detail-prev" class="pill-btn" type="button" aria-label="Previous snow globe">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span id="detail-pos" class="detail-pos"></span>
+        <button id="detail-next" class="pill-btn" type="button" aria-label="Next snow globe">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button id="detail-share" class="pill-btn share" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6"/></svg>
+          Share
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/globe.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
