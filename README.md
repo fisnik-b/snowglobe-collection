@@ -57,3 +57,6 @@ assets/               icônes de l'app
 - Fond de carte [OpenFreeMap](https://openfreemap.org/) (gratuit, sans clé), recoloré en sombre
 - Hébergement GitHub Pages (branche `main`, dossier racine)
 - Tester en local : `python3 -m http.server` puis http://localhost:8000 (pas en double-cliquant sur le fichier)
+
+> **Après une modification du CSS ou du JS**, changer le numéro `?v=…` dans `index.html`
+> (ex. la date du jour) pour que les téléphones rechargent les nouveaux fichiers.
