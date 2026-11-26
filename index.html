@@ -24,7 +24,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <link rel="stylesheet" href="css/app.css">
@@ -82,12 +82,7 @@
     </div>
     <div class="drawer-body" id="drawer-body">
       <div id="panel-collection" class="panel" role="tabpanel">
-        <div class="sortbar" role="group" aria-label="Sort">
-          <button class="sort active" data-sort="newest">Newest</button>
-          <button class="sort" data-sort="city">A–Z</button>
-          <button class="sort" data-sort="country">By country</button>
-        </div>
-        <div id="grid" class="grid"></div>
+        <div id="vitrine" class="vitrine"></div>
       </div>
       <div id="panel-stats" class="panel" role="tabpanel" hidden></div>
     </div>
@@ -102,12 +97,9 @@
       </button>
     </div>
     <div class="detail-body">
-      <div class="detail-title">
-        <div>
-          <h2 id="detail-city"></h2>
-          <p id="detail-country" class="detail-country"></p>
-        </div>
-        <span id="detail-flag" class="detail-flag" aria-hidden="true"></span>
+      <div class="socle">
+        <h2 id="detail-city"></h2>
+        <p id="detail-country" class="detail-country"></p>
       </div>
       <div id="detail-meta" class="detail-meta"></div>
       <p id="detail-notes" class="detail-notes" hidden></p>

@@ -36,35 +36,70 @@ const UI = (() => {
     nav.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => onPick(b.dataset.continent)));
   }
 
-  // ---------- Collection grid ----------
-  function thumb(g, big = false) {
-    if (g.photo) {
-      return `<img src="${esc(g.photo)}" alt="Snow globe from ${esc(g.city)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ph-flag',textContent:'${g.flag}'}))">`;
-    }
-    return `<span class="ph-flag${big ? ' big' : ''}">${g.flag}</span>`;
+  // ---------- Vitrine: shelves of snow globes, one section per continent ----------
+  const slug = (s) => norm(s).replace(/[^a-z0-9]+/g, '-');
+
+  function miniGlobe(g, i) {
+    const s1 = 20 + (i * 7) % 24, s2 = 42 - (i * 5) % 16;
+    return `
+      <svg class="mini" viewBox="0 0 64 74" aria-hidden="true">
+        <path d="M13 57h38l5 14H8z" fill="#1d2c50" stroke="rgba(156,199,255,.45)"/>
+        <rect x="18" y="61" width="28" height="5" rx="1" fill="#c9a24a" opacity=".85"/>
+        <circle cx="32" cy="32" r="25" fill="#13213f" stroke="rgba(207,226,255,.55)" stroke-width="1.5"/>
+        <circle cx="32" cy="38" r="16" fill="${g.color}" opacity=".16"/>
+        <circle cx="${s1}" cy="18" r="1.1" fill="#fff"/><circle cx="${s2}" cy="14" r=".9" fill="#fff"/><circle cx="${24 + (i * 3) % 16}" cy="50" r=".9" fill="#fff" opacity=".7"/>
+        <path d="M17 22q4-7 12-8" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="mini-flag">${g.flag}</span>`;
   }
 
-  function renderGrid(list, onOpen) {
-    const grid = $('#grid');
+  function tileArt(g, i) {
+    if (g.photo) {
+      return `<img src="${esc(g.photo)}" alt="" loading="lazy" decoding="async"
+        onerror="this.parentNode.classList.remove('has-photo');this.outerHTML=this.parentNode.dataset.fallback">`;
+    }
+    return miniGlobe(g, i);
+  }
+
+  function renderVitrine(list, onOpen) {
+    const box = $('#vitrine');
     if (!list.length) {
-      grid.innerHTML = '<p class="empty">No snow globe here yet.</p>';
+      box.innerHTML = '<p class="empty">No snow globe here yet.</p>';
       return;
     }
-    grid.innerHTML = list.map(g => `
-      <button class="card" data-id="${esc(g.id)}" style="--c:${g.color}">
-        <span class="card-img">${thumb(g)}</span>
-        <span class="card-text">
-          <span class="card-city">${esc(g.city)}</span>
-          <span class="card-country"><span class="dot"></span>${esc(g.country)}</span>
-        </span>
-      </button>`).join('');
-    grid.querySelectorAll('.card').forEach(c => c.addEventListener('click', () => onOpen(c.dataset.id)));
+    const groups = [];
+    list.forEach(g => {
+      let grp = groups[groups.length - 1];
+      if (!grp || grp.name !== g.continent) groups.push(grp = { name: g.continent, color: g.color, items: [] });
+      grp.items.push(g);
+    });
+    let n = 0;
+    box.innerHTML = groups.map(grp => {
+      let rows = '';
+      for (let r = 0; r < grp.items.length; r += 4) {
+        rows += '<div class="shelf">' + grp.items.slice(r, r + 4).map(g => {
+          const i = n++;
+          const fallback = esc(miniGlobe(g, i));
+          return `
+          <button class="tile${g.photo ? ' has-photo' : ''}" data-id="${esc(g.id)}" aria-label="${esc(g.city)}, ${esc(g.country)}">
+            <span class="tile-art" data-fallback="${fallback}">${tileArt(g, i)}</span>
+            <span class="tile-name">${esc(g.city)}</span>
+          </button>`;
+        }).join('') + '</div>';
+      }
+      return `
+        <section class="aisle" id="aisle-${slug(grp.name)}" style="--c:${grp.color}">
+          <h3 class="aisle-head"><span class="dot"></span>${esc(grp.name)}<span class="aisle-count">${grp.items.length}</span></h3>
+          ${rows}
+        </section>`;
+    }).join('');
+    box.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => onOpen(t.dataset.id)));
   }
 
   function renderSummary(stats) {
     $('#drawer-summary').innerHTML =
-      `<strong>${stats.total}</strong> snow globes · <strong>${stats.countries}</strong> countries · <strong>${stats.continents}</strong> continents`;
-    $('#brand-sub').textContent = `${stats.total} cities · ${stats.countries} countries · since ${CONFIG.since}`;
+      `Collected since ${CONFIG.since}`;
+    $('#brand-sub').textContent = `${stats.total} cities in ${stats.countries} countries`;
   }
 
   // ---------- Stats ----------
@@ -84,7 +119,6 @@ const UI = (() => {
       <div class="kpis">
         <div class="kpi"><span>${s.total}</span>snow globes</div>
         <div class="kpi"><span>${s.countries}</span>countries</div>
-        <div class="kpi"><span>${s.continents}</span>continents</div>
       </div>
 
       <h3 class="section-title">By continent</h3>
@@ -317,12 +351,10 @@ const UI = (() => {
     hero.prepend(holder);
 
     $('#detail-city').textContent = g.city;
-    $('#detail-country').textContent = g.country;
-    $('#detail-flag').textContent = g.flag;
+    $('#detail-country').textContent = `${g.flag}  ${g.country}` + (g.date ? `, ${g.date.getFullYear()}` : '');
     const meta = [
       `<span class="tag" style="--c:${g.color}"><span class="dot"></span>${esc(g.continent)}</span>`,
-      g.date ? `<span class="tag">Added ${esc(monthFmt.format(g.date))}</span>` : '',
-      `<span class="tag mono">${g.lat.toFixed(2)}°, ${g.lng.toFixed(2)}°</span>`,
+      g.date ? `<span class="tag">Added in ${esc(monthFmt.format(g.date))}</span>` : '',
       `<span class="tag">${fmt.format(Math.round(g.distance))} km from ${esc(CONFIG.home.name)}</span>`,
     ];
     $('#detail-meta').innerHTML = meta.join('');
@@ -342,14 +374,12 @@ const UI = (() => {
             <stop offset="1" stop-color="#ffffff" stop-opacity=".14"/>
           </radialGradient>
         </defs>
-        <path d="M22 96 h76 l8 26 H14z" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.35)" stroke-width="1.2"/>
         <circle cx="60" cy="58" r="46" fill="#162342"/>
         <circle cx="60" cy="58" r="46" fill="url(#glass)" stroke="rgba(255,255,255,.45)" stroke-width="1.5"/>
-        <ellipse cx="60" cy="96" rx="30" ry="5" fill="rgba(255,255,255,.18)"/>
       </svg>
       <span class="hero-flag">${g.flag}</span>
       <span class="hero-note">Photo coming soon</span>`;
   }
 
-  return { toast, renderChips, renderGrid, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, isDesktop, $ };
+  return { toast, renderChips, renderVitrine, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, isDesktop, $ };
 })();
