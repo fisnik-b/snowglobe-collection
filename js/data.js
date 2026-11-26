@@ -1,4 +1,4 @@
-// Snow Globe Atlas — data loading and helpers
+// mySnowglobes — data loading and helpers
 
 const Data = (() => {
   // --- CSV parsing (handles quoted fields, commas and line breaks in quotes) ---
