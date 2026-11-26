@@ -22,12 +22,12 @@ const CONFIG = {
 
 // Continent palette — luminous accents for the dark globe.
 const CONTINENTS = {
-  'Europe':        { color: '#5cb8ff', short: 'Europe', abbr: 'Eu' },
-  'Asia':          { color: '#ffa552', short: 'Asia', abbr: 'As' },
-  'Africa':        { color: '#4fe0a0', short: 'Africa', abbr: 'Af' },
-  'North America': { color: '#ff6f86', short: 'N. America', abbr: 'NA' },
-  'South America': { color: '#f7d354', short: 'S. America', abbr: 'SA' },
-  'Oceania':       { color: '#46e3e3', short: 'Oceania', abbr: 'Oc' },
+  'Europe':        { color: '#5cb8ff', short: 'Europe' },
+  'Asia':          { color: '#ffa552', short: 'Asia' },
+  'Africa':        { color: '#4fe0a0', short: 'Africa' },
+  'North America': { color: '#ff6f86', short: 'N. America' },
+  'South America': { color: '#f7d354', short: 'S. America' },
+  'Oceania':       { color: '#46e3e3', short: 'Oceania' },
 };
 const DEFAULT_COLOR = '#cfd8ea';
 

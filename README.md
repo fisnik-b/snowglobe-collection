@@ -30,8 +30,7 @@ Les colonnes facultatives peuvent être ajoutées à droite à tout moment ; le 
 
 - Globe 3D qui tourne au démarrage, zoom fluide jusqu'à la ville
 - Recherche (ville, pays, continent) et filtres par continent
-- Vitrine : les boules posées sur des étagères, 4 par planche, un rayon par continent, rangées par pays,
-  avec un index sur le bord droit pour sauter d'un continent à l'autre
+- Vitrine : les boules posées sur des étagères, 4 par planche, un rayon par continent, rangées par pays
 - Statistiques : continents, records, pays, ajouts par année
 - Fiche par boule façon « socle souvenir » : photo, nom gravé en doré, neige, boule suivante/précédente
   (boutons, flèches ou balayage)

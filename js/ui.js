@@ -65,7 +65,6 @@ const UI = (() => {
     const box = $('#vitrine');
     if (!list.length) {
       box.innerHTML = '<p class="empty">No snow globe here yet.</p>';
-      $('#shelf-index').innerHTML = '';
       return;
     }
     const groups = [];
@@ -95,24 +94,12 @@ const UI = (() => {
         </section>`;
     }).join('');
     box.querySelectorAll('.tile').forEach(t => t.addEventListener('click', () => onOpen(t.dataset.id)));
-
-    // continent index on the right edge (like the A–Z of the phone's contacts)
-    const idx = $('#shelf-index');
-    idx.innerHTML = groups.length > 1
-      ? groups.map(grp => `<button data-target="aisle-${slug(grp.name)}" style="--c:${grp.color}" aria-label="Go to ${esc(grp.name)}">${esc(((CONTINENTS[grp.name] || {}).abbr) || grp.name.slice(0, 2))}</button>`).join('')
-      : '';
-    idx.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
-      const target = document.getElementById(b.dataset.target);
-      const body = $('#drawer-body');
-      const top = body.scrollTop + target.getBoundingClientRect().top - body.getBoundingClientRect().top;
-      body.scrollTo({ top: top - 4, behavior: 'smooth' });
-    }));
   }
 
   function renderSummary(stats) {
     $('#drawer-summary').innerHTML =
-      `<strong>${stats.total}</strong> snow globes from <strong>${stats.countries}</strong> countries`;
-    $('#brand-sub').textContent = `${stats.total} cities, collected since ${CONFIG.since}`;
+      `Collected since ${CONFIG.since}`;
+    $('#brand-sub').textContent = `${stats.total} cities in ${stats.countries} countries`;
   }
 
   // ---------- Stats ----------
@@ -132,7 +119,6 @@ const UI = (() => {
       <div class="kpis">
         <div class="kpi"><span>${s.total}</span>snow globes</div>
         <div class="kpi"><span>${s.countries}</span>countries</div>
-        <div class="kpi"><span>${s.continents}</span>continents</div>
       </div>
 
       <h3 class="section-title">By continent</h3>
