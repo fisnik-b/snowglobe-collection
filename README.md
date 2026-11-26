@@ -7,7 +7,8 @@ Ma collection de boules à neige sur un globe 3D interactif.
 
 1. **Google Sheets** « Snowglobe Collection » : ajouter une ligne.
 2. **Photo** (facultatif) : déposer le fichier dans le dossier [`photos/`](photos/) sur GitHub
-   (*Add file → Upload files*), puis écrire son nom dans la colonne `photo`.
+   (photo de face, fond uni, format portrait ou carré, < 300 Ko)
+   — *Add file → Upload files* — puis écrire son nom dans la colonne `photo`.
 3. C'est tout : le site relit le Sheets à chaque ouverture (Google met parfois quelques minutes à rafraîchir).
 
 ### Colonnes du Sheets
@@ -29,8 +30,11 @@ Les colonnes facultatives peuvent être ajoutées à droite à tout moment ; le 
 
 - Globe 3D qui tourne au démarrage, zoom fluide jusqu'à la ville
 - Recherche (ville, pays, continent) et filtres par continent
-- Panneau glissant : collection (tri récent / A–Z / pays) et statistiques
-- Fiche par boule : photo, animation de neige, boule suivante/précédente (boutons, flèches ou balayage)
+- Vitrine : les boules posées sur des étagères, 4 par planche, un rayon par continent, rangées par pays,
+  avec un index sur le bord droit pour sauter d'un continent à l'autre
+- Statistiques : continents, records, pays, ajouts par année
+- Fiche par boule façon « socle souvenir » : photo, nom gravé en doré, neige, boule suivante/précédente
+  (boutons, flèches ou balayage)
 - Lien direct vers une boule : `…/snowglobe-collection/#colombo` (bouton **Share**)
 - Icône pour « Ajouter à l'écran d'accueil » sur iPhone
 

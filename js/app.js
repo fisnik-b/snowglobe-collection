@@ -5,7 +5,6 @@
   const state = {
     all: [],          // every snow globe
     continent: 'all', // active filter
-    sort: 'newest',
     current: null,    // open snow globe
   };
   let drawer;
@@ -13,19 +12,21 @@
   // ---------- Derived lists ----------
   const filtered = () => state.continent === 'all' ? state.all : state.all.filter(g => g.continent === state.continent);
 
+  // Vitrine order: biggest continent first, then country A–Z, then city A–Z
   function sorted(list) {
-    const l = [...list];
-    if (state.sort === 'city') return l.sort((a, b) => a.city.localeCompare(b.city));
-    if (state.sort === 'country') return l.sort((a, b) => a.country.localeCompare(b.country) || a.city.localeCompare(b.city));
-    // newest: by date when present, otherwise the last rows of the sheet first
-    return l.sort((a, b) => (b.date || 0) - (a.date || 0) || b.index - a.index);
+    const counts = state.all.reduce((a, g) => (a[g.continent] = (a[g.continent] || 0) + 1, a), {});
+    const known = Object.keys(CONTINENTS);
+    const rank = (c) => known.includes(c) ? known.indexOf(c) : 99;
+    return [...list].sort((a, b) =>
+      (counts[b.continent] - counts[a.continent]) || (rank(a.continent) - rank(b.continent)) ||
+      a.country.localeCompare(b.country) || a.city.localeCompare(b.city));
   }
   const ordered = () => sorted(filtered());
 
   // ---------- Rendering ----------
   function renderAll() {
     UI.renderChips(state.all, state.continent, setContinent);
-    UI.renderGrid(ordered(), open);
+    UI.renderVitrine(ordered(), open);
   }
 
   function setContinent(c) {
@@ -126,12 +127,6 @@
     $('#detail-share').addEventListener('click', share);
     $('#reset-view').addEventListener('click', () => { close(); if (state.continent !== 'all') setContinent('all'); else Globe.resetView(); });
     setupDetailGestures();
-
-    document.querySelectorAll('.sort').forEach(b => b.addEventListener('click', () => {
-      state.sort = b.dataset.sort;
-      document.querySelectorAll('.sort').forEach(s => s.classList.toggle('active', s === b));
-      UI.renderGrid(ordered(), open);
-    }));
 
     document.addEventListener('keydown', (e) => {
       if (e.target.matches('input')) return;
