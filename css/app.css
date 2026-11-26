@@ -229,6 +229,13 @@ body.detail-open .drawer { transform: translateY(100%); }
 .c-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.06); overflow: hidden; }
 .c-bar span { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, rgba(156,199,255,.4), var(--accent)); }
 .countries b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.singles { margin-top: 14px; }
+.singles summary { cursor: pointer; list-style: none; font-size: 14px; color: var(--muted); padding: 6px 0; }
+.singles summary::-webkit-details-marker { display: none; }
+.singles summary::after { content: ' ›'; display: inline-block; transition: transform .2s; }
+.singles[open] summary::after { transform: rotate(90deg); }
+.singles p { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; font-size: 13.5px; color: #c9d3ec; }
+.record.static { cursor: default; }
 
 /* ---------- Detail sheet ---------- */
 .detail {
