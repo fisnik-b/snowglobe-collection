@@ -66,8 +66,15 @@ svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width:
   background: var(--bg); transition: opacity .8s ease, visibility .8s;
   color: var(--muted); font-size: 14px; letter-spacing: .02em;
 }
-.loader-logo { width: 84px; height: 84px; border-radius: 20px; box-shadow: 0 0 60px rgba(92,184,255,.25); animation: float 2.4s ease-in-out infinite; }
-.loader.error .loader-logo { animation: none; opacity: .5; }
+.loader-globe {
+  width: 74px; height: 74px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 30px; color: #fff;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), rgba(120,170,255,.08) 60%, rgba(255,255,255,.12));
+  border: 1px solid rgba(255,255,255,.25);
+  box-shadow: 0 0 60px rgba(120,170,255,.25);
+  animation: float 2.4s ease-in-out infinite;
+}
+.loader.error .loader-globe { animation: none; opacity: .5; }
 .loader p { max-width: 260px; text-align: center; margin: 0; }
 body.ready .loader { opacity: 0; visibility: hidden; }
 @keyframes float { 50% { transform: translateY(-8px); } }
