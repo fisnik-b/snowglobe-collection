@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Snow Globe Atlas</title>
+  <title>mySnowglobes</title>
   <meta name="description" content="A collection of snow globes from cities around the world, on an interactive 3D globe.">
   <meta name="theme-color" content="#070b16">
   <meta name="color-scheme" content="dark">
 
   <!-- Home screen / app icon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Snow Globes">
+  <meta name="apple-mobile-web-app-title" content="mySnowglobes">
 
   <!-- Link previews (WhatsApp, iMessage…) -->
-  <meta property="og:title" content="Snow Globe Atlas">
+  <meta property="og:title" content="mySnowglobes">
   <meta property="og:description" content="A collection of snow globes from cities around the world.">
   <meta property="og:image" content="assets/icon-512.png">
 
@@ -36,7 +37,7 @@
 
   <!-- Loading screen -->
   <div id="loader" class="loader" role="status">
-    <div class="loader-globe" aria-hidden="true"><span>❄</span></div>
+    <img class="loader-logo" src="assets/logo.svg" alt="" aria-hidden="true">
     <p>Shaking the snow globes…</p>
   </div>
 
@@ -44,9 +45,9 @@
   <header class="top">
     <div class="top-row">
       <div class="brand">
-        <span class="brand-mark" aria-hidden="true">❄</span>
+        <img class="brand-mark" src="assets/logo.svg" alt="" aria-hidden="true">
         <div>
-          <h1>Snow Globe Atlas</h1>
+          <h1>mySnowglobes</h1>
           <p id="brand-sub" class="brand-sub">&nbsp;</p>
         </div>
       </div>

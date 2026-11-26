@@ -1,4 +1,4 @@
-// Snow Globe Atlas — interface components
+// mySnowglobes — interface components
 
 const UI = (() => {
   const $ = (s) => document.querySelector(s);

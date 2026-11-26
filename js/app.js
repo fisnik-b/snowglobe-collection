@@ -1,4 +1,4 @@
-// Snow Globe Atlas — app state and wiring
+// mySnowglobes — app state and wiring
 
 (async () => {
   const { $ } = UI;
@@ -93,7 +93,7 @@
     const g = state.current;
     if (!g) return;
     const url = location.origin + location.pathname + '#' + g.id;
-    const data = { title: `${g.city} · Snow Globe Atlas`, text: `${g.flag} ${g.city}, ${g.country}`, url };
+    const data = { title: `${g.city} · mySnowglobes`, text: `${g.flag} ${g.city}, ${g.country}`, url };
     try {
       if (navigator.share) await navigator.share(data);
       else { await navigator.clipboard.writeText(url); UI.toast('Link copied'); }

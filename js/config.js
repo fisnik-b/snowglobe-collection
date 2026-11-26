@@ -1,4 +1,4 @@
-// Snow Globe Atlas — configuration
+// mySnowglobes — configuration
 // Everything you might want to tweak lives in this file.
 
 const CONFIG = {

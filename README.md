@@ -1,4 +1,4 @@
-# ❄️ Snow Globe Atlas
+# mySnowglobes
 
 Ma collection de boules à neige sur un globe 3D interactif.
 **Site :** https://fisnik-b.github.io/snowglobe-collection/

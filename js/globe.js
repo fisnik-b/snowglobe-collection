@@ -1,4 +1,4 @@
-// Snow Globe Atlas — 3D globe (MapLibre GL JS + OpenFreeMap)
+// mySnowglobes — 3D globe (MapLibre GL JS + OpenFreeMap)
 
 const Globe = (() => {
   let map, onSelect, fontStack = ['Noto Sans Regular'];

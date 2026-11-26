@@ -1,6 +1,6 @@
 {
-  "name": "Snow Globe Atlas",
-  "short_name": "Snow Globes",
+  "name": "mySnowglobes",
+  "short_name": "mySnowglobes",
   "description": "A collection of snow globes from cities around the world.",
   "start_url": "./",
   "scope": "./",
