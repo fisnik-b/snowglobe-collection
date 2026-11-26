@@ -10,8 +10,9 @@ Une photo par boule à neige, référencée dans la colonne `photo` du Google Sh
 
 ## Taille
 
-- Environ 1200 px de large
-- Moins de 300 Ko par photo (sinon la carte est lente sur mobile)
+- Environ 2000 px de haut (pour pouvoir zoomer sur les détails)
+- Moins de 700 Ko par photo
+- JPG ou PNG (pas de HEIC : sur iPhone, Réglages → Appareil photo → Formats → « Le plus compatible »)
 
 ## Ajouter une photo
 
