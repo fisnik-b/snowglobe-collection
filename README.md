@@ -55,6 +55,7 @@ assets/               icônes de l'app
 
 - [MapLibre GL JS](https://maplibre.org/) 5 (projection globe) via CDN, aucune étape de build
 - Fond de carte [OpenFreeMap](https://openfreemap.org/) (gratuit, sans clé), recoloré en sombre
+- Pays de la collection teintés sur le globe : frontières [Natural Earth](https://www.naturalearthdata.com/) 1:50m (domaine public), simplifiées dans `assets/countries.geojson`
 - Hébergement GitHub Pages (branche `main`, dossier racine)
 - Tester en local : `python3 -m http.server` puis http://localhost:8000 (pas en double-cliquant sur le fichier)
 
