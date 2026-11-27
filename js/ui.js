@@ -108,6 +108,17 @@ const UI = (() => {
     const continents = Object.entries(s.byContinent).sort((a, b) => b[1] - a[1]);
     const years = Object.entries(s.byYear).sort((a, b) => a[0] - b[0]);
     const maxYear = Math.max(1, ...years.map(y => y[1]));
+    const people = (n) => n >= 1e6
+      ? `${(n / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 })} million people`
+      : `${fmt.format(n)} people`;
+    const topCountryCard = s.topCountries.length ? `
+      <div class="record static">
+        <span class="record-label">Most snow globes</span>
+        <span class="record-value">${s.topCountries.slice(0, 3).map(c => s.flags[c]).join(' ')} ${esc(s.topCountries.slice(0, 3).join(', '))}</span>
+        <span class="record-sub">${s.topCount} each</span>
+      </div>` : '';
+    const multi = s.sortedCountries.filter(([, n]) => n >= 2);
+    const single = s.sortedCountries.filter(([, n]) => n < 2).map(([c]) => c).sort((a, b) => a.localeCompare(b));
     const record = (label, g, value) => g ? `
       <button class="record" data-id="${esc(g.id)}">
         <span class="record-label">${label}</span>
@@ -131,10 +142,10 @@ const UI = (() => {
 
       <h3 class="section-title">Records</h3>
       <div class="records">
+        ${s.latest ? record('Latest arrival', s.latest, monthFmt.format(s.latest.date)) : topCountryCard}
+        ${record('Biggest city', s.biggest, s.biggest ? people(s.biggest.population) : '')}
+        ${record('Smallest city', s.smallest, s.smallest ? people(s.smallest.population) : '')}
         ${record(`Farthest from ${esc(CONFIG.home.name)}`, s.farthest, s.farthest ? fmt.format(Math.round(s.farthest.distance)) + ' km' : '')}
-        ${record('Northernmost', s.northernmost, s.northernmost ? s.northernmost.lat.toFixed(1) + '° N' : '')}
-        ${record('Southernmost', s.southernmost, s.southernmost ? Math.abs(s.southernmost.lat).toFixed(1) + (s.southernmost.lat < 0 ? '° S' : '° N') : '')}
-        ${s.latest ? record('Latest addition', s.latest, monthFmt.format(s.latest.date)) : ''}
       </div>
 
       ${years.length ? `
@@ -145,13 +156,18 @@ const UI = (() => {
 
       <h3 class="section-title">Countries</h3>
       <ul class="countries">
-        ${s.sortedCountries.map(([c, n]) => `
+        ${multi.map(([c, n]) => `
           <li>
             <span class="c-name">${s.flags[c] || '🌍'} ${esc(c)}</span>
             <span class="c-bar"><span style="width:${(n / maxCountry) * 100}%"></span></span>
             <b>${n}</b>
           </li>`).join('')}
-      </ul>`;
+      </ul>
+      ${single.length ? `
+      <details class="singles">
+        <summary>+ ${single.length} ${single.length === 1 ? 'country' : 'countries'} with one snow globe</summary>
+        <p>${single.map(c => `<span>${s.flags[c] || '🌍'} ${esc(c)}</span>`).join('')}</p>
+      </details>` : ''}`;
     $('#panel-stats').querySelectorAll('.record').forEach(r => r.addEventListener('click', () => onOpen(r.dataset.id)));
   }
 

@@ -89,6 +89,7 @@ const Data = (() => {
         photo: photoUrl(r.photo),
         date,
         notes: r.notes || '',
+        population: parseInt(String(r.population || '').replace(/[^\d]/g, ''), 10) || null,
         distance: distanceKm(CONFIG.home.lat, CONFIG.home.lng, lat, lng),
       });
     });
@@ -108,7 +109,8 @@ const Data = (() => {
     const flags = Object.fromEntries(globes.map(g => [g.country, g.flag]));
     const sortedCountries = Object.entries(byCountry).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
     const byDistance = [...globes].sort((a, b) => b.distance - a.distance);
-    const byLat = [...globes].sort((a, b) => b.lat - a.lat);
+    const byPop = globes.filter(g => g.population).sort((a, b) => b.population - a.population);
+    const topCount = sortedCountries.length ? sortedCountries[0][1] : 0;
     const dated = globes.filter(g => g.date);
     const byYear = dated.reduce((acc, g) => (acc[g.date.getFullYear()] = (acc[g.date.getFullYear()] || 0) + 1, acc), {});
     return {
@@ -117,8 +119,10 @@ const Data = (() => {
       continents: Object.keys(byContinent).length,
       sortedCountries, flags, byContinent,
       farthest: byDistance[0],
-      northernmost: byLat[0],
-      southernmost: byLat[byLat.length - 1],
+      biggest: byPop[0] || null,
+      smallest: byPop.length > 1 ? byPop[byPop.length - 1] : null,
+      topCountries: topCount > 1 ? sortedCountries.filter(([, n]) => n === topCount).map(([c]) => c) : [],
+      topCount,
       latest: dated.sort((a, b) => b.date - a.date)[0] || null,
       byYear,
     };
