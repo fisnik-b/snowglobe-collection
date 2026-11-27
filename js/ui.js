@@ -311,10 +311,10 @@ const UI = (() => {
     clear.addEventListener('click', () => { input.value = ''; render(); input.focus(); });
   }
 
-  // ---------- Snowfall in the detail hero ----------
-  const Snow = (() => {
+  // ---------- Snowfall: in the detail hero, and the full-screen flurry on arrival ----------
+  function makeSnow(selector, { density = 6, speed = 1, size = 1 } = {}) {
     let raf, flakes = [], until = 0;
-    const canvas = () => $('#snow');
+    const canvas = () => $(selector);
     function start(duration = 4200) {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       const c = canvas(), ctx = c.getContext('2d');
@@ -322,9 +322,9 @@ const UI = (() => {
       const w = c.clientWidth, h = c.clientHeight;
       c.width = w * dpr; c.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      flakes = Array.from({ length: Math.round(w / 6) }, () => ({
-        x: Math.random() * w, y: Math.random() * -h, r: 0.8 + Math.random() * 2.4,
-        vy: 0.4 + Math.random() * 1.1, drift: Math.random() * Math.PI * 2,
+      flakes = Array.from({ length: Math.round(w / density) }, () => ({
+        x: Math.random() * w, y: Math.random() * -h, r: (0.8 + Math.random() * 2.4) * size,
+        vy: (0.4 + Math.random() * 1.1) * speed, drift: Math.random() * Math.PI * 2,
       }));
       until = performance.now() + duration;
       cancelAnimationFrame(raf);
@@ -332,7 +332,7 @@ const UI = (() => {
         ctx.clearRect(0, 0, w, h);
         const fade = Math.max(0, Math.min(1, (until - t) / 900));
         flakes.forEach(f => {
-          f.y += f.vy; f.drift += 0.02; f.x += Math.sin(f.drift) * 0.35;
+          f.y += f.vy; f.drift += 0.02; f.x += Math.sin(f.drift) * 0.35 * speed;
           if (f.y > h + 4 && t < until - 900) { f.y = -4; f.x = Math.random() * w; }
           ctx.globalAlpha = 0.85 * fade;
           ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
@@ -345,7 +345,9 @@ const UI = (() => {
     }
     function stop() { cancelAnimationFrame(raf); const c = canvas(); c.getContext('2d').clearRect(0, 0, c.width, c.height); }
     return { start, stop };
-  })();
+  }
+  const Snow = makeSnow('#snow');
+  const Flurry = makeSnow('#flurry', { density: 4, speed: 3.2, size: 1.1 });
 
   // ---------- Photo viewer: pinch / double-tap / wheel zoom, pan, swipe down to close ----------
   const Viewer = (() => {
@@ -524,5 +526,5 @@ const UI = (() => {
       <span class="hero-note">Photo coming soon</span>`;
   }
 
-  return { toast, renderChips, renderVitrine, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, Viewer, isDesktop, $ };
+  return { toast, renderChips, renderVitrine, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, Flurry, Viewer, isDesktop, $ };
 })();

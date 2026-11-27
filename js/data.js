@@ -96,11 +96,18 @@ const Data = (() => {
     return globes;
   }
 
-  async function load() {
+  async function fetchText() {
     const res = await fetch(CONFIG.sheetUrl, { cache: 'no-store' });
     if (!res.ok) throw new Error('Sheet returned ' + res.status);
-    return normalise(parseCSV(await res.text()));
+    return res.text();
   }
+  const parse = (text) => normalise(parseCSV(text));
+  async function load() { return parse(await fetchText()); }
+
+  // The last copy of the sheet is kept on the device, so a repeat visit is instant
+  const CACHE_KEY = 'mysnowglobes:sheet:v1';
+  function readCache() { try { return localStorage.getItem(CACHE_KEY); } catch (_) { return null; } }
+  function writeCache(text) { try { localStorage.setItem(CACHE_KEY, text); } catch (_) { /* private mode */ } }
 
   function stats(globes) {
     const count = (key) => globes.reduce((acc, g) => (acc[g[key]] = (acc[g[key]] || 0) + 1, acc), {});
@@ -128,5 +135,5 @@ const Data = (() => {
     };
   }
 
-  return { load, stats, flag, slugify };
+  return { load, fetchText, parse, readCache, writeCache, stats, flag, slugify };
 })();
