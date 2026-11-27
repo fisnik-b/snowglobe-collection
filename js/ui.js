@@ -347,6 +347,127 @@ const UI = (() => {
     return { start, stop };
   })();
 
+  // ---------- Photo viewer: pinch / double-tap / wheel zoom, pan, swipe down to close ----------
+  const Viewer = (() => {
+    const MAX = 5;
+    let el, img, scale = 1, tx = 0, ty = 0, dragY = 0;
+    const pts = new Map();
+    let pinch = null, lastTap = null, moved = false;
+
+    const center = () => ({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    function baseSize() { // size of the photo at scale 1 (object-fit: contain)
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const r = (img.naturalWidth / img.naturalHeight) || 1;
+      return vw / vh > r ? { w: vh * r, h: vh } : { w: vw, h: vw / r };
+    }
+    function clamp() {
+      const b = baseSize();
+      const mx = Math.max(0, (b.w * scale - window.innerWidth) / 2);
+      const my = Math.max(0, (b.h * scale - window.innerHeight) / 2);
+      tx = Math.min(mx, Math.max(-mx, tx));
+      ty = Math.min(my, Math.max(-my, ty));
+    }
+    function apply(animate) {
+      img.style.transition = animate ? 'transform .3s cubic-bezier(.22,1,.36,1)' : 'none';
+      img.style.transform = `translate(${tx}px, ${ty + dragY}px) scale(${scale})`;
+      el.style.setProperty('--fade', String(1 - Math.min(0.6, Math.abs(dragY) / 400)));
+      el.classList.toggle('zoomed', scale > 1.01);
+    }
+    // zoom to `s` keeping the screen point (px, py) still
+    function zoomAt(s, px, py, animate) {
+      const c = center();
+      const qx = (px - c.x - tx) / scale, qy = (py - c.y - ty) / scale;
+      scale = Math.min(MAX, Math.max(1, s));
+      tx = px - c.x - scale * qx; ty = py - c.y - scale * qy;
+      if (scale === 1) { tx = 0; ty = 0; }
+      clamp(); apply(animate);
+    }
+
+    function down(e) {
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      moved = false;
+      if (pts.size === 2) {
+        const [a, b] = [...pts.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: scale, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, tx, ty };
+      }
+    }
+    function move(e) {
+      if (!pts.has(e.pointerId)) return;
+      const prev = pts.get(e.pointerId);
+      const cur = { x: e.clientX, y: e.clientY };
+      pts.set(e.pointerId, cur);
+      if (Math.hypot(cur.x - prev.x, cur.y - prev.y) > 1) moved = true;
+      if (pts.size === 2 && pinch) {
+        const [a, b] = [...pts.values()];
+        const d = Math.hypot(a.x - b.x, a.y - b.y);
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const c = center();
+        const qx = (pinch.mx - c.x - pinch.tx) / pinch.s, qy = (pinch.my - c.y - pinch.ty) / pinch.s;
+        scale = Math.min(MAX, Math.max(1, pinch.s * d / pinch.d));
+        tx = mx - c.x - scale * qx; ty = my - c.y - scale * qy;
+        clamp(); apply(false);
+      } else if (pts.size === 1) {
+        const dx = cur.x - prev.x, dy = cur.y - prev.y;
+        if (scale > 1.01) { tx += dx; ty += dy; clamp(); }
+        else dragY += dy; // not zoomed: drag down to close
+        apply(false);
+      }
+    }
+    function up(e) {
+      const p = pts.get(e.pointerId);
+      pts.delete(e.pointerId);
+      if (pts.size < 2) pinch = null;
+      if (pts.size) return;
+      if (Math.abs(dragY) > 110) return close();
+      if (dragY) { dragY = 0; apply(true); }
+      if (!moved && p && e.target !== $('#viewer-close')) { // double tap
+        const now = Date.now();
+        if (lastTap && now - lastTap.t < 320 && Math.hypot(p.x - lastTap.x, p.y - lastTap.y) < 30) {
+          zoomAt(scale > 1.01 ? 1 : 2.5, p.x, p.y, true);
+          lastTap = null;
+        } else lastTap = { t: now, x: p.x, y: p.y };
+      }
+    }
+    function wheel(e) {
+      e.preventDefault();
+      zoomAt(scale * Math.exp(-e.deltaY * 0.0022), e.clientX, e.clientY, false);
+    }
+    function key(e) {
+      if (el.hidden) return;
+      e.stopPropagation();
+      if (e.key === 'Escape') close();
+    }
+
+    function init() {
+      el = $('#viewer'); img = $('#viewer-img');
+      el.addEventListener('pointerdown', down);
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+      el.addEventListener('wheel', wheel, { passive: false });
+      $('#viewer-close').addEventListener('click', close);
+      window.addEventListener('keydown', key, true);
+      window.addEventListener('resize', () => { if (!el.hidden) { clamp(); apply(false); } });
+    }
+    function open(src, alt) {
+      if (!el) init();
+      scale = 1; tx = 0; ty = 0; dragY = 0; pts.clear(); pinch = null; lastTap = null;
+      img.alt = alt || '';
+      img.src = src;
+      apply(false);
+      el.hidden = false;
+      requestAnimationFrame(() => el.classList.add('open'));
+      $('#viewer-close').focus({ preventScroll: true });
+    }
+    function close() {
+      el.classList.remove('open');
+      pts.clear(); pinch = null;
+      setTimeout(() => { el.hidden = true; dragY = 0; }, 250);
+    }
+    return { open, close, get isOpen() { return el && !el.hidden; } };
+  })();
+
   // ---------- Detail sheet ----------
   function renderDetail(g, pos, total) {
     const hero = $('#detail-hero');
@@ -355,7 +476,13 @@ const UI = (() => {
     const holder = document.createElement('div');
     if (g.photo) {
       holder.className = 'hero-img';
-      holder.innerHTML = `<img src="${esc(g.photo)}" alt="Snow globe from ${esc(g.city)}">`;
+      holder.innerHTML = `<img src="${esc(g.photo)}" alt="Snow globe from ${esc(g.city)}">
+        <button class="zoom-btn" type="button" aria-label="Zoom into the photo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M11 8v6M8 11h6"/></svg>
+        </button>`;
+      const openViewer = () => Viewer.open(g.photo, `Snow globe from ${g.city}`);
+      holder.querySelector('img').addEventListener('click', openViewer);
+      holder.querySelector('.zoom-btn').addEventListener('click', openViewer);
       holder.querySelector('img').addEventListener('error', () => {
         holder.className = 'hero-ph';
         holder.innerHTML = placeholderHTML(g);
@@ -397,5 +524,5 @@ const UI = (() => {
       <span class="hero-note">Photo coming soon</span>`;
   }
 
-  return { toast, renderChips, renderVitrine, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, isDesktop, $ };
+  return { toast, renderChips, renderVitrine, renderSummary, renderStats, setupDrawer, setupSearch, renderDetail, Snow, Viewer, isDesktop, $ };
 })();

@@ -7,7 +7,7 @@ Ma collection de boules à neige sur un globe 3D interactif.
 
 1. **Google Sheets** « Snowglobe Collection » : ajouter une ligne.
 2. **Photo** (facultatif) : déposer le fichier dans le dossier [`photos/`](photos/) sur GitHub
-   (photo de face, fond uni, format portrait ou carré, < 300 Ko)
+   (photo de face, fond uni, format portrait ou carré, environ 2000 px de haut, < 700 Ko, en JPG ou PNG)
    — *Add file → Upload files* — puis écrire son nom dans la colonne `photo`.
 3. C'est tout : le site relit le Sheets à chaque ouverture (Google met parfois quelques minutes à rafraîchir).
 
