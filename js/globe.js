@@ -102,20 +102,20 @@ const Globe = (() => {
     const firstAbove = base.find(l => l.type === 'symbol' || (l.type === 'line' && /boundary|admin/.test(l.id)));
     map.addSource('countries', { type: 'geojson', data: CONFIG.countriesFile });
     map.addLayer({
-      id: 'country-tint', type: 'fill', source: 'countries',
+      id: 'country-tint', type: 'fill', source: 'countries', maxzoom: 6,
       filter: ['in', ['get', 'c'], ['literal', []]],
       paint: {
         'fill-color': DEFAULT_COLOR,
-        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.34, 5, 0.22, 8, 0.08],
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.34, 3.5, 0.26, 5.5, 0],
       },
     }, firstAbove && firstAbove.id);
     map.addLayer({
-      id: 'country-edge', type: 'line', source: 'countries',
+      id: 'country-edge', type: 'line', source: 'countries', maxzoom: 4.5,
       filter: ['in', ['get', 'c'], ['literal', []]],
       paint: {
         'line-color': DEFAULT_COLOR,
-        'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.75, 6, 0.4],
-        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 6, 1.2],
+        'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.75, 3, 0.5, 4.2, 0],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 4, 1],
       },
     }, firstAbove && firstAbove.id);
 
