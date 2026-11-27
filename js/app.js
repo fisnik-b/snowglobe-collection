@@ -160,6 +160,7 @@
     UI.renderStats(stats, (id) => open(id));
     renderAll();
     Globe.setData(globes);
+    Globe.setCountries(globes);
 
     document.body.classList.add('ready');
     setTimeout(() => $('#loader').remove(), 900);

@@ -10,6 +10,9 @@ const CONFIG = {
   // Folder in this repository holding the photos (column "photo" = file name).
   photosFolder: 'photos/',
 
+  // Country borders used to tint the countries of the collection (Natural Earth, public domain).
+  countriesFile: 'assets/countries.geojson',
+
   // Free vector base map (no API key). Re-coloured to dark in globe.js.
   baseStyle: 'https://tiles.openfreemap.org/styles/positron',
 

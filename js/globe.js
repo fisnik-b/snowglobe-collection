@@ -97,6 +97,28 @@ const Globe = (() => {
   }
 
   function addLayers() {
+    // Countries with at least one snow globe, softly tinted (borders: Natural Earth, public domain)
+    const base = map.getStyle().layers;
+    const firstAbove = base.find(l => l.type === 'symbol' || (l.type === 'line' && /boundary|admin/.test(l.id)));
+    map.addSource('countries', { type: 'geojson', data: CONFIG.countriesFile });
+    map.addLayer({
+      id: 'country-tint', type: 'fill', source: 'countries',
+      filter: ['in', ['get', 'c'], ['literal', []]],
+      paint: {
+        'fill-color': DEFAULT_COLOR,
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.22, 5, 0.14, 8, 0.06],
+      },
+    }, firstAbove && firstAbove.id);
+    map.addLayer({
+      id: 'country-edge', type: 'line', source: 'countries',
+      filter: ['in', ['get', 'c'], ['literal', []]],
+      paint: {
+        'line-color': DEFAULT_COLOR,
+        'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.45, 6, 0.25],
+        'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 6, 1.2],
+      },
+    }, firstAbove && firstAbove.id);
+
     map.addSource('globes', {
       type: 'geojson',
       data: toGeoJSON([]),
@@ -219,6 +241,20 @@ const Globe = (() => {
     map.getSource('globes').setData(toGeoJSON(globes));
   }
 
+  // Tint every country of the collection in its continent colour
+  function setCountries(globes) {
+    const colors = {};
+    globes.forEach(g => { if (g.code && !colors[g.code]) colors[g.code] = g.color; });
+    const codes = Object.keys(colors);
+    const filter = ['in', ['get', 'c'], ['literal', codes]];
+    const color = codes.length
+      ? ['match', ['get', 'c'], ...codes.flatMap(c => [c, colors[c]]), DEFAULT_COLOR]
+      : DEFAULT_COLOR;
+    ['country-tint', 'country-edge'].forEach(id => map.setFilter(id, filter));
+    map.setPaintProperty('country-tint', 'fill-color', color);
+    map.setPaintProperty('country-edge', 'line-color', color);
+  }
+
   function select(g, { fly = true, bottomPad = 0 } = {}) {
     spinning = false;
     selectedId = g.id;
@@ -251,5 +287,5 @@ const Globe = (() => {
     map.flyTo({ center: [12, 30], zoom: startZoom(), padding: { top: 0, bottom: 0, left: 0, right: 0 }, duration: 1600, essential: true });
   }
 
-  return { init, setData, select, clearSelection, fitTo, resetView };
+  return { init, setData, setCountries, select, clearSelection, fitTo, resetView };
 })();
