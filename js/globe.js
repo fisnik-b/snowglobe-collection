@@ -106,7 +106,7 @@ const Globe = (() => {
       filter: ['in', ['get', 'c'], ['literal', []]],
       paint: {
         'fill-color': DEFAULT_COLOR,
-        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.22, 5, 0.14, 8, 0.06],
+        'fill-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.34, 5, 0.22, 8, 0.08],
       },
     }, firstAbove && firstAbove.id);
     map.addLayer({
@@ -114,7 +114,7 @@ const Globe = (() => {
       filter: ['in', ['get', 'c'], ['literal', []]],
       paint: {
         'line-color': DEFAULT_COLOR,
-        'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.45, 6, 0.25],
+        'line-opacity': ['interpolate', ['linear'], ['zoom'], 1, 0.75, 6, 0.4],
         'line-width': ['interpolate', ['linear'], ['zoom'], 1, 0.6, 6, 1.2],
       },
     }, firstAbove && firstAbove.id);
