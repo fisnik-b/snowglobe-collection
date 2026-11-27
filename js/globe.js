@@ -188,7 +188,10 @@ const Globe = (() => {
     ['mousedown', 'touchstart', 'wheel', 'dragstart'].forEach(e => map.on(e, stopSpin));
     map.on('mouseup', () => (interacting = false));
     map.on('touchend', () => (interacting = false));
-    map.on('moveend', spin);
+    map.on('moveend', () => {
+      if (!introDone) { introDone = true; map.setMinZoom(0.6); }
+      spin();
+    });
 
     map.on('click', 'cluster', async (e) => {
       const f = e.features[0];
@@ -211,6 +214,33 @@ const Globe = (() => {
     map.easeTo({ center: c, duration: 1000, easing: t => t });
   }
 
+  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const HOME = [12, 30];
+  let cascadeTimer = null, introDone = false;
+
+  // The globe arrives from space and settles on Europe
+  function intro() {
+    if (reduced()) { introDone = true; return; }
+    map.easeTo({
+      center: HOME, zoom: startZoom(), duration: 2600,
+      easing: t => 1 - Math.pow(1 - t, 3), essential: true,
+    });
+  }
+
+  // Snow globes land one by one, in random order
+  function cascade(globes) {
+    clearInterval(cascadeTimer);
+    if (reduced()) return setData(globes);
+    const order = [...globes].sort(() => Math.random() - 0.5);
+    const step = Math.max(1, Math.ceil(order.length / 24));
+    let n = 0;
+    cascadeTimer = setInterval(() => {
+      n += step;
+      map.getSource('globes').setData(toGeoJSON(order.slice(0, n)));
+      if (n >= order.length) { clearInterval(cascadeTimer); cascadeTimer = null; }
+    }, 55);
+  }
+
   function startZoom() {
     const w = Math.min(window.innerWidth, window.innerHeight * 1.2);
     return w < 500 ? 0.9 : w < 900 ? 1.4 : 1.8;
@@ -220,12 +250,13 @@ const Globe = (() => {
   async function init(container, handlers) {
     onSelect = handlers.onSelect;
     const style = await buildStyle();
+    const animate = handlers.intro && !reduced();
     map = new maplibregl.Map({
       container,
       style,
-      center: [12, 30],
-      zoom: startZoom(),
-      minZoom: 0.6,
+      center: animate ? [HOME[0] + 70, HOME[1] - 10] : HOME,
+      zoom: animate ? startZoom() - 1.9 : startZoom(),
+      minZoom: animate ? -2 : 0.6,
       maxZoom: 14,
       attributionControl: { compact: true },
       renderWorldCopies: false,
@@ -238,6 +269,7 @@ const Globe = (() => {
   }
 
   function setData(globes) {
+    clearInterval(cascadeTimer); cascadeTimer = null;
     map.getSource('globes').setData(toGeoJSON(globes));
   }
 
@@ -284,8 +316,8 @@ const Globe = (() => {
 
   function resetView() {
     clearSelection();
-    map.flyTo({ center: [12, 30], zoom: startZoom(), padding: { top: 0, bottom: 0, left: 0, right: 0 }, duration: 1600, essential: true });
+    map.flyTo({ center: HOME, zoom: startZoom(), padding: { top: 0, bottom: 0, left: 0, right: 0 }, duration: 1600, essential: true });
   }
 
-  return { init, setData, setCountries, select, clearSelection, fitTo, resetView };
+  return { init, intro, cascade, setData, setCountries, select, clearSelection, fitTo, resetView };
 })();

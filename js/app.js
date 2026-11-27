@@ -143,33 +143,73 @@
     });
   }
 
-  // ---------- Boot ----------
+  // ---------- Data → screen ----------
+  function applyData(globes, { animate = false } = {}) {
+    state.all = globes;
+    const stats = Data.stats(globes);
+    UI.renderSummary(stats);
+    UI.renderStats(stats, (id) => open(id));
+    renderAll();
+    if (animate) Globe.cascade(filtered());
+    else Globe.setData(filtered());
+    Globe.setCountries(globes);
+  }
+
+  function showError() {
+    const loader = $('#loader');
+    if (!loader) {
+      // the globe is already on screen: say it in a toast instead
+      UI.toast('The snow globes could not be loaded. Check your connection and refresh.', 8000);
+      return;
+    }
+    document.body.classList.remove('ready');
+    loader.classList.remove('quiet');
+    loader.classList.add('error');
+    $('#loader p').textContent = 'The collection could not be loaded. Check your connection and refresh.';
+  }
+
+  // ---------- Boot: globe first, no waiting screen ----------
   try {
     drawer = UI.setupDrawer();
     UI.setupSearch(() => state.all, (id) => open(id));
     wire();
 
-    const [globes] = await Promise.all([
-      Data.load(),
-      Globe.init('map', { onSelect: (id) => open(id) }),
-    ]);
-    state.all = globes;
+    // the "Shaking the snow globes…" screen only shows up on a slow connection
+    const slow = setTimeout(() => $('#loader') && $('#loader').classList.remove('quiet'), 1500);
 
-    const stats = Data.stats(globes);
-    UI.renderSummary(stats);
-    UI.renderStats(stats, (id) => open(id));
-    renderAll();
-    Globe.setData(globes);
-    Globe.setCountries(globes);
+    const cached = Data.readCache();
+    let globes = null;
+    if (cached) { try { globes = Data.parse(cached); } catch (_) { globes = null; } }
+    const fresh = Data.fetchText();
+    fresh.catch(() => {}); // handled below
 
+    await Globe.init('map', { onSelect: (id) => open(id), intro: true });
+    clearTimeout(slow);
     document.body.classList.add('ready');
-    setTimeout(() => $('#loader').remove(), 900);
+    setTimeout(() => $('#loader') && $('#loader').remove(), 400);
+
+    Globe.intro();
+    UI.Flurry.start(2600);
+
+    if (!globes) {
+      let text;
+      try { text = await fresh; } catch (err) { console.error(err); return showError(); }
+      Data.writeCache(text);
+      globes = Data.parse(text);
+    } else {
+      // refresh quietly in the background; update the screen only if the sheet changed
+      fresh.then(text => {
+        if (text === cached) return;
+        Data.writeCache(text);
+        applyData(Data.parse(text));
+      }).catch(err => console.warn('Sheet refresh failed, showing the saved copy', err));
+    }
+    setTimeout(() => applyData(globes, { animate: true }), 700);
 
     const id = decodeURIComponent(location.hash.slice(1));
-    if (id) setTimeout(() => open(id), 600);
+    if (id) setTimeout(() => open(id), 2000);
   } catch (err) {
     console.error(err);
-    $('#loader').classList.add('error');
-    $('#loader p').textContent = 'The collection could not be loaded. Check your connection and refresh.';
+    showError();
   }
 })();
